@@ -10,9 +10,5 @@ export default function Home() {
     setTitle("Home");
   }, [setTitle]);
 
-  return (
-    <main>
-      <div>Home</div>
-    </main>
-  );
+  return <div>Home</div>;
 }

@@ -26,7 +26,7 @@ function AppLayout({ children }: ClientRootLayoutProps) {
           <CssBaseline />
           <AppHeader open={open} handleDrawerToggle={handleDrawerToggle} title={title} />
           <Sidebar open={open} />
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Box component="main" sx={{ flexGrow: 1, p: 3, marginTop: "64px" }}>
             {children}
           </Box>
         </Box>

@@ -22,7 +22,7 @@ function Sidebar({ open }: SidebarProps) {
       <Divider />
       {menuItems.map((text, index) => (
         <Fragment key={index}>
-          <List disablePadding>
+          <List disablePadding sx={{ background: expanded === text ? "#f9f9f9" : "#fff", boxShadow: expanded === text ? "inset 4px 0 #f48020" : "#fff" }}>
             <ListItem key={text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 sx={{
@@ -48,15 +48,14 @@ function Sidebar({ open }: SidebarProps) {
             <Collapse in={expanded === text} easing="ease-in" timeout="auto" unmountOnExit>
               {subMenuItems.map((subText, index) => (
                 <List disablePadding key={index}>
-                  <ListItem disablePadding sx={{ display: "block", pl: 2 }}>
+                  <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       sx={{
                         minHeight: 48,
-                        justifyContent: expanded ? "initial" : "center",
                         px: 2.5,
                       }}
                     >
-                      <ListItemIcon
+                      {/* <ListItemIcon
                         sx={{
                           minWidth: 0,
                           mr: expanded ? 3 : "auto",
@@ -64,8 +63,8 @@ function Sidebar({ open }: SidebarProps) {
                         }}
                       >
                         <Label />
-                      </ListItemIcon>
-                      <ListItemText primary={subText} sx={{ opacity: expanded ? 1 : 0 }} />
+                      </ListItemIcon> */}
+                      <ListItemText primary={subText} />
                     </ListItemButton>
                   </ListItem>
                 </List>
