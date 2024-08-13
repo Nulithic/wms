@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import { useRouter } from "next/navigation";
+
 import { styled } from "@mui/material/styles";
 
 const StyledDrawerHeader = styled("div")(({ theme }) => ({
@@ -11,6 +13,12 @@ const StyledDrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 const DrawerHeader = () => {
+  const router = useRouter();
+
+  const handleNav = () => () => {
+    router.push("/");
+  };
+
   return (
     <StyledDrawerHeader>
       <img
@@ -21,7 +29,9 @@ const DrawerHeader = () => {
           width: "auto", // Maintain aspect ratio
           objectFit: "contain", // Ensure the entire logo is visible
           marginRight: "auto",
+          // cursor: "pointer",
         }}
+        // onClick={handleNav()}
       />
     </StyledDrawerHeader>
   );
