@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Box } from "@mui/material";
 import MultiSelectChip from "@/components/MultiSelectChip";
+import { UserData } from "@/libs/api/types";
 
 const roleList = ["Admin", "Manager", "Customer"];
 const groupList = ["SPL", "Oved", "Tzumi"];
@@ -10,7 +11,7 @@ const groupList = ["SPL", "Oved", "Tzumi"];
 interface AddUserDialogProps {
   open: boolean;
   onClose: () => void;
-  onAddUser: (userData: any) => void;
+  onAddUser: (userData: Partial<UserData>) => void;
 }
 
 export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialogProps) {

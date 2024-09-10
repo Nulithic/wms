@@ -1,9 +1,9 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-const handleDeleteUser = async (supabase: SupabaseClient, request: NextRequest) => {
+const handleDeleteUser = async (supabase: SupabaseClient, body: any) => {
   try {
-    const { userId } = await request.json();
+    const { userId } = body;
 
     const { data, error } = await supabase.auth.admin.deleteUser(userId);
 

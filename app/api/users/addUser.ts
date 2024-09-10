@@ -1,9 +1,9 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-const handleAddUser = async (supabase: SupabaseClient, request: NextRequest) => {
+const handleAddUser = async (supabase: SupabaseClient, body: any) => {
   try {
-    const { email, password } = await request.json();
+    const { email, password } = body;
 
     const { data, error } = await supabase.auth.admin.createUser({
       email,

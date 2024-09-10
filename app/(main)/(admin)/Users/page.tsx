@@ -1,11 +1,13 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useRef, useState, HTMLProps } from "react";
-import { Button, Paper } from "@mui/material";
+import { Button } from "@mui/material";
 
 import { Column, ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, Table, useReactTable } from "@tanstack/react-table";
 
 import AddUserDialog from "./addUserDialog";
+
+import { useUsers } from "@/libs/api/queries/userQueries";
 
 interface User {
   id: string;
@@ -13,16 +15,20 @@ interface User {
 }
 
 export default function Users() {
-  const [data, setData] = useState<User[]>([]);
-  const [openAddDialog, setOpenAddDialog] = useState(false);
-
-  const [rowSelection, setRowSelection] = useState({});
-  const [globalFilter, setGlobalFilter] = useState("");
-
   const [pageData, setPageData] = useState({
     page: 1,
     perPage: 10,
   });
+  const { getUsers, addUser, deleteUser } = useUsers();
+
+  const { data: users, isLoading, isError } = getUsers(pageData);
+  const addUserMutation = addUser();
+  const deleteUserMutation = deleteUser();
+
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+
+  const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState("");
 
   function Filter({ column, table }: { column: Column<any, any>; table: Table<any> }) {
     const firstValue = table.getPreFilteredRowModel().flatRows[0]?.getValue(column.id);
@@ -104,7 +110,7 @@ export default function Users() {
   );
 
   const table = useReactTable({
-    data,
+    data: users || [],
     columns,
     state: {
       rowSelection,
@@ -117,88 +123,21 @@ export default function Users() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const handleGetUsers = async (action: string, body: any) => {
-    try {
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action, ...body }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get users");
-      }
-
-      const result = await response.json();
-
-      setData(result);
-
-      console.log("Users:", result);
-    } catch (error) {
-      console.error("Error getting user:", error);
-    }
-  };
-
   const handleAddUser = async (userData: any) => {
-    try {
-      const response = await fetch("/api/users?action=addUser", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add user");
-      }
-
-      const result = await response.json();
-
-      handleGetUsers("getUsers", pageData);
-
-      console.log("User added:", result.user);
-    } catch (error) {
-      console.error("Error adding user:", error);
-    }
+    await addUserMutation.mutateAsync(userData);
+    setOpenAddDialog(false);
   };
 
   const handleDeleteUser = async () => {
-    try {
-      const selectedRows = table.getSelectedRowModel().rows;
-
-      for (let i = 0; i < selectedRows.length; i++) {
-        const selected = selectedRows[i].original;
-        console.log(selected.id);
-
-        const response = await fetch("/api/users?action=deleteUser", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId: selected.id }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete user");
-        }
-
-        const result = await response.json();
-        console.log("User deleted:", result.user);
-      }
-
-      table.resetRowSelection();
-      handleGetUsers("getUsers", pageData);
-    } catch (error) {
-      console.error("Error deleting user:", error);
+    const selectedRows = table.getSelectedRowModel().rows;
+    for (const row of selectedRows) {
+      await deleteUserMutation.mutateAsync(row.original.id);
     }
+    table.resetRowSelection();
   };
 
-  useEffect(() => {
-    handleGetUsers("getUsers", pageData);
-  }, [pageData]);
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading users</div>;
 
   return (
     <Fragment>

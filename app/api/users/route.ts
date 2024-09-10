@@ -11,19 +11,24 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export async function POST(request: NextRequest) {
-  const { action, ...body } = await request.json();
+  try {
+    const { action, ...body } = await request.json();
 
-  switch (action) {
-    case "getUsers":
-      return handleGetAllUsers(supabase, body);
+    switch (action) {
+      case "getUsers":
+        return handleGetAllUsers(supabase, body);
 
-    case "addUser":
-      return handleAddUser(supabase, body);
+      case "addUser":
+        return handleAddUser(supabase, body);
 
-    case "deleteUser":
-      return handleDeleteUser(supabase, body);
+      case "deleteUser":
+        return handleDeleteUser(supabase, body);
 
-    default:
-      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+      default:
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    }
+  } catch (error) {
+    console.error("API error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
