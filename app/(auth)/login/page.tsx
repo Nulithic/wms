@@ -13,11 +13,6 @@ import Typography from "@mui/material/Typography";
 
 import { login } from "./actions";
 
-interface Account {
-  email: string;
-  password: string;
-}
-
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -50,7 +45,15 @@ export default function LoginPage() {
   };
 
   return (
-    <Box display="flex" height="100vh" sx={{ backgroundImage: "url(login_bg.png)" }}>
+    <Box
+      display="flex"
+      height="100vh"
+      sx={{
+        backgroundImage: "url(login_bg.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <Grid container alignContent="center" justifyContent="center">
         <CssBaseline />
         <Grid item component={Paper} elevation={1} p={5} textAlign="center" square>
@@ -60,9 +63,35 @@ export default function LoginPage() {
               Sign In
             </Typography>
             <form onSubmit={handleSubmit}>
-              <TextField variant="outlined" margin="normal" required fullWidth label="Email" id="email" name="email" type="email" autoFocus />
-              <TextField variant="outlined" margin="normal" required fullWidth label="Password" id="password" name="password" type="password" autoComplete="current-password" />
-              <Button type="submit" fullWidth variant="contained" color="primary">
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Email"
+                id="email"
+                name="email"
+                type="email"
+                autoFocus
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Password"
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <Button type="submit" fullWidth variant="contained" color="primary" disabled={loading}>
                 {loading ? "Signing in..." : "Sign in"}
               </Button>
               <Grid container>

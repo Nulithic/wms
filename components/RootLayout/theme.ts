@@ -46,7 +46,7 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8, // Rounded corners for buttons
+          borderRadius: 4, // Rounded corners for buttons
           // textTransform: "none", // Disable uppercase transformation
         },
         // contained: {
