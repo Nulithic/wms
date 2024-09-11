@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import { createUserEndpoints } from "./endpoints/users";
+import { createUserEndpoints } from "./endpoints/usersEndpoints";
 // Import other endpoint creators as needed
 
 const BASE_URL = "/api";

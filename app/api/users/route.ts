@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-import handleGetAllUsers from "./getUsers";
+import handleGetUsers from "./getUsers";
 import handleAddUser from "./addUser";
 import handleDeleteUser from "./deleteUser";
 
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case "getUsers":
-        return handleGetAllUsers(supabase, body);
+        return handleGetUsers(supabase, body);
 
       case "addUser":
         return handleAddUser(supabase, body);

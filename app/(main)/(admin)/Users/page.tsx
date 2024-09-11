@@ -7,7 +7,7 @@ import { Column, ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, ge
 
 import AddUserDialog from "./addUserDialog";
 
-import { useUsers } from "@/libs/api/queries/userQueries";
+import { useUsers } from "@/libs/api/queries/usersQueries";
 
 interface User {
   id: string;

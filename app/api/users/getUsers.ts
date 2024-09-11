@@ -1,19 +1,16 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-const handleGetAllUsers = async (supabase: SupabaseClient, body: any) => {
+const handleGetUsers = async (supabase: SupabaseClient, body: any) => {
   try {
     const { page, perPage } = body;
 
-    console.log(page);
-
-    const {
-      data: { users },
-      error,
-    } = await supabase.auth.admin.listUsers({
-      page: page,
-      perPage: perPage,
+    const { data, error } = await supabase.auth.admin.listUsers({
+      page,
+      perPage,
     });
+
+    const { users } = data;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -26,4 +23,4 @@ const handleGetAllUsers = async (supabase: SupabaseClient, body: any) => {
   }
 };
 
-export default handleGetAllUsers;
+export default handleGetUsers;
