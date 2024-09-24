@@ -3,7 +3,16 @@
 import { Fragment, useEffect, useMemo, useRef, useState, HTMLProps } from "react";
 import { Button } from "@mui/material";
 
-import { Column, ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, Table, useReactTable } from "@tanstack/react-table";
+import {
+  Column,
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  Table,
+  useReactTable,
+} from "@tanstack/react-table";
 
 import AddUserDialog from "./addUserDialog";
 
@@ -51,11 +60,21 @@ export default function Users() {
         />
       </div>
     ) : (
-      <input type="text" value={(column.getFilterValue() ?? "") as string} onChange={(e) => column.setFilterValue(e.target.value)} placeholder={`Search...`} className="w-36 border shadow rounded" />
+      <input
+        type="text"
+        value={(column.getFilterValue() ?? "") as string}
+        onChange={(e) => column.setFilterValue(e.target.value)}
+        placeholder={`Search...`}
+        className="w-36 border shadow rounded"
+      />
     );
   }
 
-  function IndeterminateCheckbox({ indeterminate, className = "", ...rest }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+  function IndeterminateCheckbox({
+    indeterminate,
+    className = "",
+    ...rest
+  }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
     const ref = useRef<HTMLInputElement>(null!);
 
     useEffect(() => {
@@ -106,7 +125,7 @@ export default function Users() {
         footer: (props) => props.column.id,
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -124,6 +143,8 @@ export default function Users() {
   });
 
   const handleAddUser = async (userData: any) => {
+    console.log(userData);
+
     await addUserMutation.mutateAsync(userData);
     setOpenAddDialog(false);
   };
@@ -150,7 +171,12 @@ export default function Users() {
       </Button>
 
       <div>
-        <input value={globalFilter ?? ""} onChange={(e) => setGlobalFilter(e.target.value)} className="p-2 font-lg shadow border border-block" placeholder="Search all columns..." />
+        <input
+          value={globalFilter ?? ""}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+          className="p-2 font-lg shadow border border-block"
+          placeholder="Search all columns..."
+        />
       </div>
       <div className="h-2" />
       <table>
@@ -195,16 +221,28 @@ export default function Users() {
       </table>
       <div className="h-2" />
       <div className="flex items-center gap-2">
-        <button className="border rounded p-1" onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.setPageIndex(0)}
+          disabled={!table.getCanPreviousPage()}
+        >
           {"<<"}
         </button>
-        <button className="border rounded p-1" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
           {"<"}
         </button>
         <button className="border rounded p-1" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
           {">"}
         </button>
-        <button className="border rounded p-1" onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+          disabled={!table.getCanNextPage()}
+        >
           {">>"}
         </button>
         <span className="flex items-center gap-1">

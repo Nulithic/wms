@@ -22,10 +22,14 @@ export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialo
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
-    formData.append("roles", selectedRoles.join(","));
-    formData.append("groups", selectedGroups.join(","));
+    // formData.append("roles", selectedRoles.join(","));
+    // formData.append("groups", selectedGroups.join(","));
 
     const formJson = Object.fromEntries(formData.entries());
+
+    // Add roles and groups as arrays
+    formJson.roles = JSON.stringify(selectedRoles);
+    formJson.groups = JSON.stringify(selectedGroups);
 
     onAddUser(formJson);
     handleClose();
@@ -65,10 +69,39 @@ export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialo
             size="small"
             fullWidth
           />
-          <TextField required autoComplete="new-password" id="password" name="password" label="Password" type="password" variant="outlined" size="small" fullWidth />
-          <TextField required id="confirm" name="confirm" label="Confirm Password" type="password" variant="outlined" size="small" fullWidth />
-          <MultiSelectChip itemList={roleList} label="Roles" selectedValues={selectedRoles} setSelectedValues={setSelectedRoles} maxSelection={1} />
-          <MultiSelectChip itemList={groupList} label="Groups" selectedValues={selectedGroups} setSelectedValues={setSelectedGroups} />
+          <TextField
+            required
+            autoComplete="new-password"
+            id="password"
+            name="password"
+            label="Password"
+            type="password"
+            variant="outlined"
+            size="small"
+            fullWidth
+          />
+          <TextField
+            required
+            id="confirm"
+            name="confirm"
+            label="Confirm Password"
+            type="password"
+            variant="outlined"
+            size="small"
+            fullWidth
+          />
+          <MultiSelectChip
+            itemList={roleList}
+            label="Roles"
+            selectedValues={selectedRoles}
+            setSelectedValues={setSelectedRoles}
+          />
+          <MultiSelectChip
+            itemList={groupList}
+            label="Groups"
+            selectedValues={selectedGroups}
+            setSelectedValues={setSelectedGroups}
+          />
         </Box>
       </DialogContent>
       <DialogActions>

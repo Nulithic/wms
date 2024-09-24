@@ -27,18 +27,23 @@ function Copyright() {
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
+    setErrorMessage("");
 
     const formData = new FormData(event.currentTarget);
 
     try {
-      await login(formData);
+      const result = await login(formData);
+      if (result?.error) {
+        setErrorMessage(result.error);
+      }
     } catch (error) {
       console.error("Login failed:", error);
-      // Handle error, e.g., display error message
+      setErrorMessage("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -91,6 +96,13 @@ export default function LoginPage() {
                   shrink: true,
                 }}
               />
+
+              {errorMessage && (
+                <Typography color="error" variant="body2" sx={{ my: 2 }}>
+                  {errorMessage}
+                </Typography>
+              )}
+
               <Button type="submit" fullWidth variant="contained" color="primary" disabled={loading}>
                 {loading ? "Signing in..." : "Sign in"}
               </Button>

@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
   try {
     const { action, ...body } = await request.json();
 
+    console.log(body);
+
     switch (action) {
       case "getUsers":
         return handleGetUsers(supabase, body);

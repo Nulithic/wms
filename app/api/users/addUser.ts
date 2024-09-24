@@ -3,11 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 const handleAddUser = async (supabase: SupabaseClient, body: any) => {
   try {
-    const { email, password } = body;
+    const { email, password, roles, groups } = body;
+
+    console.log(body);
+
+    // Parse roles and groups from JSON strings to arrays
+    const parsedRoles = JSON.parse(roles);
+    const parsedGroups = JSON.parse(groups);
 
     const { data, error } = await supabase.auth.admin.createUser({
       email,
+      email_confirm: true,
       password,
+      user_metadata: { roles: parsedRoles, groups: parsedGroups },
     });
 
     if (error) {
