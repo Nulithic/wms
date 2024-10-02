@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { createUserEndpoints } from "./endpoints/usersEndpoints";
+import { createRoleEndpoints } from "./endpoints/rolesEndpoints";
 // Import other endpoint creators as needed
 
 const BASE_URL = "/api";
@@ -13,6 +14,7 @@ const axiosInstance: AxiosInstance = axios.create({
 
 const createApiClient = (instance: AxiosInstance) => ({
   users: createUserEndpoints(instance),
+  roles: createRoleEndpoints(instance),
   // Add other endpoint categories
 });
 

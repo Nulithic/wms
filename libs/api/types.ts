@@ -9,4 +9,14 @@ export interface UserData {
   // Add other user properties
 }
 
+export interface RoleData {
+  id: string;
+  role_name: string;
+  description: string;
+  create: boolean;
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+}
+
 // Add other shared types

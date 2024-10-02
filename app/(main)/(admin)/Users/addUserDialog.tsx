@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Box } from "@mui/material";
 import MultiSelectChip from "@/components/MultiSelectChip";
-import { UserData } from "@/libs/api/types";
 
-const roleList = ["Admin", "Manager", "Customer"];
+import { UserData } from "@/libs/api/types";
+import { useRoles } from "@/libs/api/queries/rolesQueries";
+
 const groupList = ["SPL", "Oved", "Tzumi"];
 
 interface AddUserDialogProps {
@@ -15,6 +16,11 @@ interface AddUserDialogProps {
 }
 
 export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialogProps) {
+  const { getRoles } = useRoles();
+  const { data: roles, isLoading, isError } = getRoles({ page: 1, perPage: 1000 });
+
+  const [roleList, setRoleList] = useState<string[]>([]);
+
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
 
@@ -40,6 +46,14 @@ export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialo
     setSelectedRoles([]);
     setSelectedGroups([]);
   };
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (isError) return;
+    setRoleList(roles?.map((role) => role.role_name) || []);
+  }, [isLoading, isError, roles]);
+
+  console.log(roleList);
 
   return (
     <Dialog
