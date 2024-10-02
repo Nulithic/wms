@@ -11,6 +11,13 @@ export function useUsers() {
         select: (response) => response.data,
       }),
 
+    getUser: (userId: string) =>
+      useQuery({
+        queryKey: ["user", userId],
+        queryFn: () => apiClient.users.getUser(userId),
+        select: (response) => response.data,
+      }),
+
     addUser: () => {
       const queryClient = useQueryClient();
       return useMutation({

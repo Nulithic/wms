@@ -5,7 +5,6 @@ import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, B
 import MultiSelectChip from "@/components/MultiSelectChip";
 
 import { UserData } from "@/libs/api/types";
-import { useRoles } from "@/libs/api/queries/rolesQueries";
 
 const groupList = ["SPL", "Oved", "Tzumi"];
 
@@ -16,44 +15,28 @@ interface AddUserDialogProps {
 }
 
 export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialogProps) {
-  const { getRoles } = useRoles();
-  const { data: roles, isLoading, isError } = getRoles({ page: 1, perPage: 1000 });
-
-  const [roleList, setRoleList] = useState<string[]>([]);
-
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-
-    // formData.append("roles", selectedRoles.join(","));
-    // formData.append("groups", selectedGroups.join(","));
-
     const formJson = Object.fromEntries(formData.entries());
 
-    // Add roles and groups as arrays
-    formJson.roles = JSON.stringify(selectedRoles);
-    formJson.groups = JSON.stringify(selectedGroups);
+    if (formJson.password !== formJson.confirm) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
 
-    onAddUser(formJson);
+    // Remove confirm field before sending to onAddUser
+    const { confirm, ...userData } = formJson;
+    onAddUser(userData);
     handleClose();
   };
 
   const handleClose = () => {
+    setPasswordError(null);
     onClose();
-    setSelectedRoles([]);
-    setSelectedGroups([]);
   };
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (isError) return;
-    setRoleList(roles?.map((role) => role.role_name) || []);
-  }, [isLoading, isError, roles]);
-
-  console.log(roleList);
 
   return (
     <Dialog
@@ -93,6 +76,7 @@ export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialo
             variant="outlined"
             size="small"
             fullWidth
+            error={!!passwordError}
           />
           <TextField
             required
@@ -103,18 +87,8 @@ export default function AddUserDialog({ open, onClose, onAddUser }: AddUserDialo
             variant="outlined"
             size="small"
             fullWidth
-          />
-          <MultiSelectChip
-            itemList={roleList}
-            label="Roles"
-            selectedValues={selectedRoles}
-            setSelectedValues={setSelectedRoles}
-          />
-          <MultiSelectChip
-            itemList={groupList}
-            label="Groups"
-            selectedValues={selectedGroups}
-            setSelectedValues={setSelectedGroups}
+            error={!!passwordError}
+            helperText={passwordError}
           />
         </Box>
       </DialogContent>

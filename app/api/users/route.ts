@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import handleGetUsers from "./getUsers";
 import handleAddUser from "./addUser";
 import handleDeleteUser from "./deleteUser";
+import handleGetUser from "./getUser";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -14,11 +15,12 @@ export async function POST(request: NextRequest) {
   try {
     const { action, ...body } = await request.json();
 
-    console.log(body);
-
     switch (action) {
       case "getUsers":
         return handleGetUsers(supabase, body);
+
+      case "getUser":
+        return handleGetUser(supabase, body);
 
       case "addUser":
         return handleAddUser(supabase, body);

@@ -17,6 +17,8 @@ import {
 import AddUserDialog from "./addUserDialog";
 
 import { useUsers } from "@/libs/api/queries/usersQueries";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface User {
   id: string;
@@ -24,6 +26,8 @@ interface User {
 }
 
 export default function Users() {
+  const router = useRouter();
+
   const [pageData, setPageData] = useState({
     page: 1,
     perPage: 10,
@@ -114,7 +118,11 @@ export default function Users() {
       },
       {
         accessorKey: "id",
-        cell: (info) => info.getValue(),
+        cell: (info) => (
+          <Link href={`/Users/${info.getValue()}`} className="text-blue-600 hover:underline">
+            {String(info.getValue())}
+          </Link>
+        ),
         header: () => <span>ID</span>,
         footer: (props) => props.column.id,
       },
@@ -166,7 +174,7 @@ export default function Users() {
         Add User
       </Button>
 
-      <Button variant="outlined" onClick={() => handleDeleteUser()}>
+      <Button variant="outlined" color="error" onClick={() => handleDeleteUser()}>
         Delete User
       </Button>
 
