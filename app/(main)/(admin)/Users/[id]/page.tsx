@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useUsers } from "@/libs/api/queries/usersQueries";
+import { useUsers } from "@/libs/api/queries/admin/usersQueries";
 
 export default function UserPage() {
   const { id } = useParams();

@@ -14,9 +14,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import AddUserDialog from "./addUserDialog";
+import AddUserDialog from "./AddUserDialog";
 
-import { useUsers } from "@/libs/api/queries/usersQueries";
+import { useUsers } from "@/libs/api/queries/admin/usersQueries";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 

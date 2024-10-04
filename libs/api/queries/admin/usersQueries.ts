@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "../apiClient";
-import { UserData, PageData } from "../types";
+import { apiClient } from "../../apiClient";
+import { UserData, PageData } from "../../types";
 
 export function useUsers() {
   return {
