@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient, isUserAdmin } from "./server";
+import { createClient, isUserInGroup } from "./server";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -64,7 +64,7 @@ export async function updateSession(request: NextRequest) {
   return supabaseResponse;
 }
 
-export async function adminMiddleware(request: NextRequest) {
+export async function groupMiddleware(request: NextRequest, groupCode: string) {
   const supabase = createClient();
 
   const {
@@ -75,12 +75,23 @@ export async function adminMiddleware(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const isAdmin = await isUserAdmin(supabase);
+  const isInGroup = await isUserInGroup(supabase, groupCode);
 
-  if (!isAdmin) {
+  if (!isInGroup) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // If the user is an admin, allow the request to proceed
+  if (groupCode === "admin") {
+    // If the user is in the admin group, create a new Supabase client with the service role key
+    const adminSupabase = createClient(process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+    // Attach the admin Supabase client to the request object
+    (request as any).groupSupabase = adminSupabase;
+  } else {
+    // For non-admin groups, attach the regular Supabase client
+    (request as any).groupSupabase = supabase;
+  }
+
+  // Allow the request to proceed
   return NextResponse.next();
 }

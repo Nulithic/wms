@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "./server";
-import { adminMiddleware } from "./middleware";
+import { groupMiddleware } from "./middleware";
 
 type HandlerFunction = (supabase: ReturnType<typeof createClient>, body: any) => Promise<NextResponse>;
 
-export function createAdminHandler(handlers: Record<string, HandlerFunction>) {
+export function createGroupHandler(groupCode: string, handlers: Record<string, HandlerFunction>) {
   return async function handler(request: NextRequest) {
-    // First, run the admin middleware
-    const middlewareResponse = await adminMiddleware(request);
+    // First, run the group middleware
+    const middlewareResponse = await groupMiddleware(request, groupCode);
     if (middlewareResponse.status !== 200) {
       return middlewareResponse;
     }
 
-    const supabase = createClient();
+    // Use the group Supabase client attached to the request
+    const supabase = (request as any).groupSupabase;
 
     try {
       const { action, ...body } = await request.json();
