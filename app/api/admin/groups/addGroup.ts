@@ -5,7 +5,7 @@ const handleAddGroup = async (supabase: SupabaseClient, body: any) => {
   try {
     const { name } = body;
 
-    const { data, error } = await supabase.from("groups").insert({ name }).select().single();
+    const { data, error } = await supabase.from("groups").insert({ name, code: name.toLowerCase() }).select().single();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

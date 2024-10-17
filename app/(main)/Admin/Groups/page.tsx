@@ -17,11 +17,12 @@ import {
 import AddGroupDialog from "./AddGroupDialog";
 
 import { useGroups } from "@/libs/api/queries/admin/groupsQueries";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { GroupData } from "@/libs/api/types";
 
 export default function Groups() {
+  const pathname = usePathname();
   const router = useRouter();
 
   const [pageData, setPageData] = useState({
@@ -114,7 +115,7 @@ export default function Groups() {
       {
         accessorKey: "id",
         cell: (info) => (
-          <Link href={`/Groups/${info.getValue()}`} className="text-blue-600 hover:underline">
+          <Link href={`${pathname}/${info.getValue()}`} className="text-blue-600 hover:underline">
             {String(info.getValue())}
           </Link>
         ),
@@ -128,7 +129,7 @@ export default function Groups() {
         footer: (props) => props.column.id,
       },
     ],
-    [],
+    [pathname],
   );
 
   const table = useReactTable({

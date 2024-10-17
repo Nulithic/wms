@@ -17,7 +17,7 @@ import {
 import AddUserDialog from "./AddUserDialog";
 
 import { useUsers } from "@/libs/api/queries/admin/usersQueries";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
 interface User {
@@ -27,6 +27,7 @@ interface User {
 
 export default function Users() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [pageData, setPageData] = useState({
     page: 1,
@@ -119,7 +120,7 @@ export default function Users() {
       {
         accessorKey: "id",
         cell: (info) => (
-          <Link href={`/Users/${info.getValue()}`} className="text-blue-600 hover:underline">
+          <Link href={`${pathname}/${info.getValue()}`} className="text-blue-600 hover:underline">
             {String(info.getValue())}
           </Link>
         ),
@@ -133,7 +134,7 @@ export default function Users() {
         footer: (props) => props.column.id,
       },
     ],
-    [],
+    [pathname],
   );
 
   const table = useReactTable({

@@ -4,8 +4,8 @@ export const userItems = [
     title: "Admin",
     path: "",
     subItems: [
-      { title: "Users", path: "/Users", subItems: [], hasSubItems: false },
-      { title: "Groups", path: "/Groups", subItems: [], hasSubItems: false },
+      { title: "Users", path: "/Admin/Users", subItems: [], hasSubItems: false },
+      { title: "Groups", path: "/Admin/Groups", subItems: [], hasSubItems: false },
     ],
     hasSubItems: true,
   },
