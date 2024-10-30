@@ -3,6 +3,8 @@ import { apiClient } from "../../apiClient";
 import { UserData, PageData } from "../../types";
 
 export function useUsers() {
+  const queryClient = useQueryClient();
+
   return {
     getUsers: (pageData: PageData) =>
       useQuery({
@@ -19,7 +21,6 @@ export function useUsers() {
       }),
 
     addUser: () => {
-      const queryClient = useQueryClient();
       return useMutation({
         mutationFn: (userData: Partial<UserData>) => apiClient.users.addUser(userData),
         onSuccess: () => {
@@ -29,7 +30,6 @@ export function useUsers() {
     },
 
     deleteUser: () => {
-      const queryClient = useQueryClient();
       return useMutation({
         mutationFn: (userId: string) => apiClient.users.deleteUser(userId),
         onSuccess: () => {

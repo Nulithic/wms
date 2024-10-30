@@ -6,6 +6,7 @@ export const userItems = [
     subItems: [
       { title: "Users", path: "/Admin/Users", subItems: [], hasSubItems: false },
       { title: "Groups", path: "/Admin/Groups", subItems: [], hasSubItems: false },
+      { title: "Menu Items", path: "/Admin/MenuItems", subItems: [], hasSubItems: false },
     ],
     hasSubItems: true,
   },

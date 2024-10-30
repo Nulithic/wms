@@ -1,10 +1,21 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Drawer, List, Divider, ListItem, ListItemButton, ListItemIcon, ListItemText, Collapse, useTheme } from "@mui/material";
+import {
+  Drawer,
+  List,
+  Divider,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+  useTheme,
+} from "@mui/material";
 import { Label, ExpandLess, ExpandMore } from "@mui/icons-material";
 import { StyledDrawer } from "@/styles/layoutStyles";
 import DrawerHeader from "./DrawerHeader";
-
+import { useMenuItems } from "@/libs/api/queries/admin/menuItemQueries";
+import { MenuItemData } from "@/libs/api/types";
 type UserItem = {
   title: string;
   path: string;
@@ -19,10 +30,46 @@ interface SidebarProps {
 
 function Sidebar({ open, userItems }: SidebarProps) {
   const theme = useTheme();
-
   const router = useRouter();
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<string | false>(false);
+
+  // Menu Items
+
+  const { getMenuItems } = useMenuItems();
+  const { data: menuItems, isLoading, isError } = getMenuItems();
+
+  const [menuTree, setMenuTree] = useState<MenuItemData[]>([]);
+
+  useEffect(() => {
+    if (menuItems) {
+      const tree = buildMenuTree(menuItems);
+      setMenuTree(tree);
+    }
+  }, [menuItems]);
+
+  const buildMenuTree = (items: MenuItemData[]): MenuItemData[] => {
+    const itemMap = new Map<string, MenuItemData & { children: MenuItemData[] }>();
+    items.forEach((item) => itemMap.set(item.id, { ...item, children: [] }));
+
+    const tree: MenuItemData[] = [];
+    itemMap.forEach((item) => {
+      if (item.parent_id === null) {
+        tree.push(item);
+      } else {
+        const parent = itemMap.get(item.parent_id);
+        if (parent) {
+          parent.children.push(item);
+        }
+      }
+    });
+
+    return tree;
+  };
+
+  console.log(menuTree);
+
+  // End Menu Items
 
   const handleNav = (item: UserItem, isSubItem: boolean) => (): void => {
     router.push(item.path);
@@ -79,7 +126,10 @@ function Sidebar({ open, userItems }: SidebarProps) {
 
     return (
       <ListItem disablePadding sx={listItemStyles.root(isActive)}>
-        <ListItemButton sx={listItemStyles.button(isSubItem)} onClick={isSubItem ? handleNav(item, isSubItem) : handleExpanded(item)}>
+        <ListItemButton
+          sx={listItemStyles.button(isSubItem)}
+          onClick={isSubItem ? handleNav(item, isSubItem) : handleExpanded(item)}
+        >
           <ListItemIcon sx={listItemStyles.icon}>
             <Label />
           </ListItemIcon>

@@ -19,4 +19,12 @@ export interface GroupDataResponse {
   totalCount: number;
 }
 
+export interface MenuItemData {
+  id: string;
+  title: string;
+  path: string;
+  parent_id: string | null;
+  group_id: string;
+  order_index: number;
+}
 // Add other shared types
