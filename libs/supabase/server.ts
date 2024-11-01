@@ -38,7 +38,7 @@ export async function isUserInGroup(supabase: SupabaseClient, groupCode: string)
   }
 
   const { data, error } = await supabase
-    .from("group_users")
+    .from("user_groups")
     .select("groups(code)")
     .eq("user_id", user.id)
     .eq("groups.code", groupCode)

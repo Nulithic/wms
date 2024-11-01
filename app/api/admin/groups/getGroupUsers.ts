@@ -5,7 +5,7 @@ const handleGetGroupUsers = async (supabase: SupabaseClient, body: any) => {
   try {
     const { groupId } = body;
 
-    const { data, error } = await supabase.from("group_users").select("users(*)").eq("group_id", groupId);
+    const { data, error } = await supabase.from("user_groups").select("users(*)").eq("group_id", groupId);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

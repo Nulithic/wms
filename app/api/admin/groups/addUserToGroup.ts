@@ -7,7 +7,7 @@ const handleAddUserToGroup = async (supabase: SupabaseClient, body: any) => {
 
     // Check if the user is already in the group
     const { data: existingMembership, error: checkError } = await supabase
-      .from("group_users")
+      .from("user_groups")
       .select()
       .match({ group_id: groupId, user_id: userId })
       .single();
@@ -22,7 +22,7 @@ const handleAddUserToGroup = async (supabase: SupabaseClient, body: any) => {
     }
 
     // Add the user to the group
-    const { error: insertError } = await supabase.from("group_users").insert({ group_id: groupId, user_id: userId });
+    const { error: insertError } = await supabase.from("user_groups").insert({ group_id: groupId, user_id: userId });
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 400 });

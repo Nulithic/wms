@@ -1,114 +1,108 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Box, Button, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { useMenuItemGroups } from "@/libs/api/queries/admin/menuItemGroupQueries";
+import { useRouter } from "next/navigation";
+import AddMenuItemGroupDialog from "./AddMenuItemGroupDialog";
+import { useState, useEffect } from "react";
 import { SortableList } from "@/components/SortableList";
-import { useMenuItems } from "@/libs/api/queries/admin/menuItemQueries";
-import { UniqueIdentifier } from "@dnd-kit/core";
-import AddMenuItemDialog from "./AddMenuItemDialog";
-
-const StyledHeader = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: theme.spacing(2),
-}));
-
-const StyledInstructions = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  marginBottom: theme.spacing(2),
-}));
+import { MenuItemGroupData } from "@/libs/api/types";
 
 export default function MenuItemsPage() {
-  const { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } = useMenuItems();
-  const { data: menuItems, isLoading } = getMenuItems();
-  const [localItems, setLocalItems] = useState(menuItems || []);
-  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const router = useRouter();
+  const { getMenuItemGroups, addMenuItemGroup, updateMenuItemGroup, deleteMenuItemGroup } = useMenuItemGroups();
+  const { data: groups, isLoading } = getMenuItemGroups();
   const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [localGroups, setLocalGroups] = useState<MenuItemGroupData[]>([]);
+  const [deletedGroups, setDeletedGroups] = useState<string[]>([]);
 
   useEffect(() => {
-    if (menuItems) {
-      const filteredItems = menuItems.filter((item) => !deletedIds.includes(item.id));
-      setLocalItems(filteredItems);
+    if (groups) {
+      setLocalGroups(groups);
     }
-  }, [menuItems, deletedIds]);
+  }, [groups]);
 
-  const handleChange = (items: any[]) => {
+  const handleAddGroup = async (groupData: Omit<MenuItemGroupData, "id">) => {
+    const response = await addMenuItemGroup(groupData);
+    setOpenAddDialog(false);
+    if (response.data) {
+      setLocalGroups([...localGroups, response.data]);
+    }
+  };
+
+  const handleGroupClick = (groupId: string) => {
+    router.push(`/Admin/MenuItems/${groupId}`);
+  };
+
+  const handleDeleteGroup = (id: string) => {
+    if (
+      window.confirm("Are you sure you want to delete this group? This will also delete all menu items in this group.")
+    ) {
+      setDeletedGroups([...deletedGroups, id]);
+      setLocalGroups(localGroups.filter((group) => group.id !== id));
+    }
+  };
+
+  const handleChange = (items: MenuItemGroupData[]) => {
     const updatedItems = items.map((item, index) => ({
       ...item,
       order_index: index,
     }));
-    setLocalItems(updatedItems);
-  };
-
-  const handleDelete = (id: UniqueIdentifier) => {
-    const stringId = id.toString();
-    setDeletedIds((prev) => [...prev, stringId]);
-    setLocalItems((prev) => prev.filter((item) => item.id !== stringId));
+    setLocalGroups(updatedItems);
   };
 
   const handleSave = async () => {
-    if (deletedIds.length > 0) {
-      for (const id of deletedIds) {
-        await deleteMenuItem(id);
-      }
-      setDeletedIds([]);
+    // First delete any groups that were marked for deletion
+    for (const groupId of deletedGroups) {
+      await deleteMenuItemGroup(groupId);
     }
+    setDeletedGroups([]); // Clear the deleted groups array
 
-    await updateMenuItem(localItems);
-  };
-
-  const handleAddMenuItem = async (menuItemData: any) => {
-    await addMenuItem(menuItemData);
-    setOpenAddDialog(false);
-  };
-
-  const hasChanges = () => {
-    if (deletedIds.length > 0) return true;
-    if (!menuItems || menuItems.length !== localItems.length) return true;
-
-    return localItems.some((item, index) => {
-      const originalItem = menuItems.find((mi) => mi.id === item.id);
-      return originalItem && originalItem.order_index !== index;
-    });
+    // Update all remaining groups with new order
+    for (const group of localGroups) {
+      await updateMenuItemGroup(group);
+    }
   };
 
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <Box sx={{ maxWidth: 800, margin: "0 auto" }}>
-      <StyledHeader>
-        <Typography variant="h6" component="h1">
-          Menu Items
-        </Typography>
-      </StyledHeader>
-      <StyledInstructions>
-        Drag each menu item to the preferred order. Click the name of the menu item to edit configuration options.
-      </StyledInstructions>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Button variant="contained" color="primary" onClick={() => setOpenAddDialog(true)}>
-          Add
-        </Button>
-        <Button variant="contained" onClick={handleSave} disabled={!hasChanges()}>
-          Save Changes
-        </Button>
+    <Box sx={{ maxWidth: 800, margin: "0 auto", p: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+        <Typography variant="h5">Menu Item Groups</Typography>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button variant="contained" onClick={() => setOpenAddDialog(true)}>
+            Add Group
+          </Button>
+          <Button variant="contained" onClick={handleSave}>
+            Save Changes
+          </Button>
+        </Box>
       </Box>
+
       <SortableList
-        items={localItems}
+        items={localGroups}
         onChange={handleChange}
-        renderItem={(item) => (
-          <SortableList.Item id={item.id} onDelete={handleDelete}>
+        renderItem={(group) => (
+          <SortableList.Item id={group.id} onDelete={() => handleDeleteGroup(group.id)}>
             <SortableList.DragHandle />
-            <Box component="span">{item.title}</Box>
+            <Box
+              onClick={() => handleGroupClick(group.id)}
+              sx={{
+                flex: 1,
+                cursor: "pointer",
+              }}
+            >
+              <Typography variant="h6">{group.name}</Typography>
+            </Box>
           </SortableList.Item>
         )}
       />
-      <AddMenuItemDialog
+
+      <AddMenuItemGroupDialog
         open={openAddDialog}
         onClose={() => setOpenAddDialog(false)}
-        onAddMenuItem={handleAddMenuItem}
-        menuItems={localItems}
+        onAddGroup={handleAddGroup}
       />
     </Box>
   );

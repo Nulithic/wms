@@ -1,24 +1,18 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-const handleAddMenuItem = async (supabase: SupabaseClient, body: any) => {
+const handleUpdateMenuItemGroup = async (supabase: SupabaseClient, body: any) => {
   try {
-    const { title, path, parent_id, group_id, order_index } = body;
+    const { id, name, order_index } = body;
 
     const { data, error } = await supabase
-      .from("menu_items")
-      .insert({
-        title,
-        path,
-        parent_id,
-        group_id,
-        order_index,
-      })
+      .from("menu_item_groups")
+      .update({ name, order_index })
+      .eq("id", id)
       .select()
       .single();
 
     if (error) {
-      console.error("Supabase error:", error); // Debug log
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
@@ -29,4 +23,4 @@ const handleAddMenuItem = async (supabase: SupabaseClient, body: any) => {
   }
 };
 
-export default handleAddMenuItem;
+export default handleUpdateMenuItemGroup;

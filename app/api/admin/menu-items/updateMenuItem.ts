@@ -3,18 +3,19 @@ import { NextResponse } from "next/server";
 
 const handleUpdateMenuItem = async (supabase: SupabaseClient, body: any) => {
   try {
-    console.count("posting twice");
-
     const { menuItems } = body;
 
     if (!Array.isArray(menuItems)) {
       return NextResponse.json({ error: "Invalid input: expected an array of menu items" }, { status: 400 });
     }
 
-    const updates = menuItems.map(({ id, title, order_index }) => ({
+    const updates = menuItems.map(({ id, title, path, order_index, parent_id, group_id }) => ({
       id,
       title,
+      path,
       order_index,
+      parent_id,
+      group_id,
     }));
 
     const { data, error } = await supabase.from("menu_items").upsert(updates).select();

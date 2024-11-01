@@ -5,6 +5,7 @@ const handleDeleteMenuItem = async (supabase: SupabaseClient, body: any) => {
   try {
     const { id } = body;
 
+    // With CASCADE delete, we only need to delete the parent item
     const { error } = await supabase.from("menu_items").delete().eq("id", id);
 
     if (error) {

@@ -22,9 +22,15 @@ export interface GroupDataResponse {
 export interface MenuItemData {
   id: string;
   title: string;
-  path: string;
+  group_id: string | null;
   parent_id: string | null;
-  group_id: string;
+  path: string | null;
+  order_index: number;
+}
+
+export interface MenuItemGroupData {
+  id: string;
+  name: string;
   order_index: number;
 }
 // Add other shared types
