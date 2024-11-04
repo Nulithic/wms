@@ -2,7 +2,7 @@
 
 import { Box, Button, Typography } from "@mui/material";
 import { useMenuItemGroups } from "@/libs/api/queries/admin/menuItemGroupQueries";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import AddMenuItemGroupDialog from "./AddMenuItemGroupDialog";
 import { useState, useEffect } from "react";
 import { SortableList } from "@/components/SortableList";
@@ -15,10 +15,12 @@ export default function MenuItemsPage() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [localGroups, setLocalGroups] = useState<MenuItemGroupData[]>([]);
   const [deletedGroups, setDeletedGroups] = useState<string[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     if (groups) {
       setLocalGroups(groups);
+      setHasChanges(false);
     }
   }, [groups]);
 
@@ -27,11 +29,14 @@ export default function MenuItemsPage() {
     setOpenAddDialog(false);
     if (response.data) {
       setLocalGroups([...localGroups, response.data]);
+      setHasChanges(true);
     }
   };
 
+  const pathname = usePathname();
+
   const handleGroupClick = (groupId: string) => {
-    router.push(`/Admin/MenuItems/${groupId}`);
+    router.push(`${pathname}/${groupId}`);
   };
 
   const handleDeleteGroup = (id: string) => {
@@ -40,6 +45,7 @@ export default function MenuItemsPage() {
     ) {
       setDeletedGroups([...deletedGroups, id]);
       setLocalGroups(localGroups.filter((group) => group.id !== id));
+      setHasChanges(true);
     }
   };
 
@@ -49,6 +55,7 @@ export default function MenuItemsPage() {
       order_index: index,
     }));
     setLocalGroups(updatedItems);
+    setHasChanges(true);
   };
 
   const handleSave = async () => {
@@ -74,7 +81,7 @@ export default function MenuItemsPage() {
           <Button variant="contained" onClick={() => setOpenAddDialog(true)}>
             Add Group
           </Button>
-          <Button variant="contained" onClick={handleSave}>
+          <Button variant="contained" onClick={handleSave} disabled={!hasChanges}>
             Save Changes
           </Button>
         </Box>

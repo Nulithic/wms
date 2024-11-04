@@ -23,10 +23,13 @@ export default function MenuItemDetailsPage() {
   const [title, setTitle] = useState(currentItem?.title || "");
   const [path, setPath] = useState(currentItem?.path || "");
 
+  const [hasChanges, setHasChanges] = useState(false);
+
   useEffect(() => {
     if (currentItem) {
       setTitle(currentItem.title || "");
       setPath(currentItem.path || "");
+      setHasChanges(false);
     }
   }, [currentItem]);
 
@@ -34,6 +37,7 @@ export default function MenuItemDetailsPage() {
     if (menuItems) {
       const childItems = menuItems.filter((item) => item.parent_id === actualItemId);
       setLocalChildItems(childItems);
+      setHasChanges(false);
     }
   }, [menuItems, actualItemId]);
 
@@ -90,6 +94,21 @@ export default function MenuItemDetailsPage() {
       order_index: index,
     }));
     setLocalChildItems(updatedItems);
+    setHasChanges(true);
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+    setHasChanges(true);
+  };
+
+  const handlePathChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newPath = e.target.value;
+    if (newPath && !newPath.startsWith("/")) {
+      newPath = `/${newPath}`;
+    }
+    setPath(newPath);
+    setHasChanges(true);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -101,22 +120,15 @@ export default function MenuItemDetailsPage() {
       </Typography>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}>
-        <TextField label="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <TextField label="Title" value={title} onChange={handleTitleChange} required />
         <TextField
           label="Path"
           value={path}
-          onChange={(e) => {
-            let newPath = e.target.value;
-            // Add leading slash if not present and path is not empty
-            if (newPath && !newPath.startsWith("/")) {
-              newPath = `/${newPath}`;
-            }
-            setPath(newPath);
-          }}
+          onChange={handlePathChange}
           required
           helperText="Enter the path for this menu item (e.g., users)"
         />
-        <Button variant="contained" onClick={handleSave}>
+        <Button variant="contained" onClick={handleSave} disabled={!hasChanges}>
           Save Changes
         </Button>
       </Box>
