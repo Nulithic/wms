@@ -3,6 +3,8 @@
 import { useParams } from "next/navigation";
 import { useGroups } from "@/libs/api/queries/admin/groupsQueries";
 import UsersTable from "./UsersTable";
+import MenuItemGroupsTable from "./MenuTable";
+import { Box, Typography, Divider } from "@mui/material";
 
 export default function GroupPage() {
   const { id } = useParams();
@@ -34,7 +36,22 @@ export default function GroupPage() {
           <p>{group.name}</p>
         </div>
       </div>
-      <UsersTable groupId={group.id} />
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Users in Group
+        </Typography>
+        <UsersTable groupId={group.id} />
+      </Box>
+
+      <Divider sx={{ my: 4 }} />
+
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Menu Item Groups
+        </Typography>
+        <MenuItemGroupsTable groupId={group.id} />
+      </Box>
     </div>
   );
 }

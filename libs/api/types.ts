@@ -6,13 +6,11 @@ export interface PageData {
 export interface UserData {
   id: string;
   email: string;
-  // Add other user properties
 }
 
 export interface GroupData {
   id: string;
   name: string;
-  // Add other group properties
 }
 export interface GroupDataResponse {
   groups: GroupData[];
@@ -33,4 +31,10 @@ export interface MenuItemGroupData {
   name: string;
   order_index: number;
 }
-// Add other shared types
+
+export interface MenuGroupData {
+  id: string;
+  group_id: string;
+  menu_item_group_id: string;
+  created_at: string;
+}

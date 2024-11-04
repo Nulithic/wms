@@ -1,5 +1,5 @@
 import { AxiosInstance } from "axios";
-import { GroupData, PageData, GroupDataResponse, UserData } from "../../types";
+import { GroupData, PageData, GroupDataResponse, UserData, MenuItemGroupData } from "../../types";
 
 const BASE_URL = "/admin/groups";
 
@@ -14,4 +14,11 @@ export const createGroupEndpoints = (instance: AxiosInstance) => ({
     instance.post<void>(BASE_URL, { action: "addUserToGroup", groupId, userId }),
   removeUserFromGroup: (groupId: string, userId: string) =>
     instance.post<void>(BASE_URL, { action: "removeUserFromGroup", groupId, userId }),
+
+  getGroupMenuItemGroups: ({ groupId }: { groupId: string }) =>
+    instance.post<MenuItemGroupData[]>(BASE_URL, { action: "getGroupMenuItemGroups", groupId }),
+  addMenuItemGroupToGroup: ({ groupId, menuItemGroupId }: { groupId: string; menuItemGroupId: string }) =>
+    instance.post<void>(BASE_URL, { action: "addMenuItemGroupToGroup", groupId, menuItemGroupId }),
+  removeMenuItemGroupFromGroup: ({ groupId, menuItemGroupId }: { groupId: string; menuItemGroupId: string }) =>
+    instance.post<void>(BASE_URL, { action: "removeMenuItemGroupFromGroup", groupId, menuItemGroupId }),
 });

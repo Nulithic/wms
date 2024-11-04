@@ -56,6 +56,29 @@ export function useGroups() {
     },
   });
 
+  const getGroupMenuItemGroups = (groupId: string) =>
+    useQuery({
+      queryKey: ["groupMenuItemGroups", groupId],
+      queryFn: () => apiClient.groups.getGroupMenuItemGroups({ groupId }),
+      select: (response) => response.data,
+    });
+
+  const addMenuItemGroupToGroupMutation = useMutation({
+    mutationFn: ({ groupId, menuItemGroupId }: { groupId: string; menuItemGroupId: string }) =>
+      apiClient.groups.addMenuItemGroupToGroup({ groupId, menuItemGroupId }),
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: ["groupMenuItemGroups", groupId] });
+    },
+  });
+
+  const removeMenuItemGroupFromGroupMutation = useMutation({
+    mutationFn: ({ groupId, menuItemGroupId }: { groupId: string; menuItemGroupId: string }) =>
+      apiClient.groups.removeMenuItemGroupFromGroup({ groupId, menuItemGroupId }),
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: ["groupMenuItemGroups", groupId] });
+    },
+  });
+
   return {
     getGroups,
     getGroup,
@@ -64,5 +87,8 @@ export function useGroups() {
     getGroupUsers,
     addUserToGroup: addUserToGroupMutation.mutateAsync,
     removeUserFromGroup: removeUserFromGroupMutation.mutateAsync,
+    getGroupMenuItemGroups,
+    addMenuItemGroupToGroup: addMenuItemGroupToGroupMutation.mutateAsync,
+    removeMenuItemGroupFromGroup: removeMenuItemGroupFromGroupMutation.mutateAsync,
   };
 }
