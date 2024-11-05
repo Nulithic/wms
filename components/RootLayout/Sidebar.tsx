@@ -10,8 +10,9 @@ import {
   ListItemText,
   Collapse,
   useTheme,
+  Box,
 } from "@mui/material";
-import { Label, ExpandLess, ExpandMore } from "@mui/icons-material";
+import { Label, ExpandLess, ExpandMore, Settings } from "@mui/icons-material";
 import { StyledDrawer } from "@/styles/layoutStyles";
 import DrawerHeader from "./DrawerHeader";
 import { useMenuItems } from "@/libs/api/queries/admin/menuItemQueries";
@@ -67,8 +68,6 @@ function Sidebar({ open, userItems }: SidebarProps) {
     return tree;
   };
 
-  console.log(menuTree);
-
   // End Menu Items
 
   const handleNav = (item: UserItem, isSubItem: boolean) => (): void => {
@@ -119,6 +118,10 @@ function Sidebar({ open, userItems }: SidebarProps) {
     text: {
       opacity: open ? 1 : 0,
     },
+    settingsButton: {
+      marginTop: "auto",
+      borderTop: `1px solid ${theme.palette.divider}`,
+    },
   };
 
   const renderListItem = (item: UserItem, isSubItem = false) => {
@@ -154,14 +157,24 @@ function Sidebar({ open, userItems }: SidebarProps) {
     <StyledDrawer variant="permanent" open={open}>
       <DrawerHeader />
       <Divider />
-      {userItems.map((item, index) => (
-        <Fragment key={index}>
-          <List disablePadding sx={listStyles.mainList(expanded === item.title)}>
-            {renderListItem(item)}
-            {item.hasSubItems && renderSubItems(item)}
-          </List>
-        </Fragment>
-      ))}
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {userItems.map((item, index) => (
+          <Fragment key={index}>
+            <List disablePadding sx={listStyles.mainList(expanded === item.title)}>
+              {renderListItem(item)}
+              {item.hasSubItems && renderSubItems(item)}
+            </List>
+          </Fragment>
+        ))}
+        <ListItem disablePadding sx={listItemStyles.settingsButton}>
+          <ListItemButton onClick={() => router.push("/settings")} sx={listItemStyles.button(false)}>
+            <ListItemIcon sx={listItemStyles.icon}>
+              <Settings />
+            </ListItemIcon>
+            <ListItemText primary="Settings" sx={listItemStyles.text} />
+          </ListItemButton>
+        </ListItem>
+      </Box>
     </StyledDrawer>
   );
 }

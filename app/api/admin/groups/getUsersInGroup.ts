@@ -1,7 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-const handleGetGroupUsers = async (supabase: SupabaseClient, body: any) => {
+const handleGetUsersInGroup = async (supabase: SupabaseClient, body: any) => {
   try {
     const { groupId } = body;
 
@@ -19,4 +19,4 @@ const handleGetGroupUsers = async (supabase: SupabaseClient, body: any) => {
   }
 };
 
-export default handleGetGroupUsers;
+export default handleGetUsersInGroup;

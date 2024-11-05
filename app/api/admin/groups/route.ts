@@ -4,10 +4,10 @@ import handleGetGroups from "./getGroups";
 import handleAddGroup from "./addGroup";
 import handleDeleteGroup from "./deleteGroup";
 import handleGetGroup from "./getGroup";
-import handleGetGroupUsers from "./getGroupUsers";
+import handleGetUsersInGroup from "./getUsersInGroup";
 import handleAddUserToGroup from "./addUserToGroup";
 import handleRemoveUserFromGroup from "./removeUserFromGroup";
-import handleGetGroupMenuItemGroups from "./getGroupMenuItemGroups";
+import handleGetUserMenuItemGroups from "./getUserMenuItemGroups";
 import handleAddMenuItemGroupToGroup from "./addMenuItemGroupToGroup";
 import handleRemoveMenuItemGroupFromGroup from "./removeMenuItemGroupFromGroup";
 
@@ -16,10 +16,10 @@ export const POST = createGroupHandler("admin", {
   getGroup: handleGetGroup,
   addGroup: handleAddGroup,
   deleteGroup: handleDeleteGroup,
-  getGroupUsers: handleGetGroupUsers,
+  getUsersInGroup: handleGetUsersInGroup,
   addUserToGroup: handleAddUserToGroup,
   removeUserFromGroup: handleRemoveUserFromGroup,
-  getGroupMenuItemGroups: handleGetGroupMenuItemGroups,
+  getUserMenuItemGroups: handleGetUserMenuItemGroups,
   addMenuItemGroupToGroup: handleAddMenuItemGroupToGroup,
   removeMenuItemGroupFromGroup: handleRemoveMenuItemGroupFromGroup,
 });

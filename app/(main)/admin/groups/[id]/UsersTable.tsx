@@ -9,9 +9,9 @@ interface UsersTableProps {
 
 export default function UsersTable({ groupId }: UsersTableProps) {
   const { getUsers } = useUsers();
-  const { getGroupUsers, addUserToGroup, removeUserFromGroup } = useGroups();
+  const { getUsersInGroup, addUserToGroup, removeUserFromGroup } = useGroups();
   const { data: users, isLoading: isUsersLoading } = getUsers({ page: 1, perPage: 100 });
-  const { data: groupUsers, isLoading: isGroupUsersLoading } = getGroupUsers(groupId);
+  const { data: groupUsers, isLoading: isGroupUsersLoading } = getUsersInGroup(groupId);
 
   const [userStates, setUserStates] = useState<{ [key: string]: boolean }>({});
 

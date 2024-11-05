@@ -33,10 +33,10 @@ export function useGroups() {
     },
   });
 
-  const getGroupUsers = (groupId: string) =>
+  const getUsersInGroup = (groupId: string) =>
     useQuery({
       queryKey: ["groupUsers", groupId],
-      queryFn: () => apiClient.groups.getGroupUsers(groupId),
+      queryFn: () => apiClient.groups.getUsersInGroup(groupId),
       select: (response) => response.data,
     });
 
@@ -56,10 +56,10 @@ export function useGroups() {
     },
   });
 
-  const getGroupMenuItemGroups = (groupId: string) =>
+  const getUserMenuItemGroups = (groupId: string) =>
     useQuery({
       queryKey: ["groupMenuItemGroups", groupId],
-      queryFn: () => apiClient.groups.getGroupMenuItemGroups({ groupId }),
+      queryFn: () => apiClient.groups.getUserMenuItemGroups({ groupId }),
       select: (response) => response.data,
     });
 
@@ -84,10 +84,10 @@ export function useGroups() {
     getGroup,
     addGroup: addGroupMutation.mutateAsync,
     deleteGroup: deleteGroupMutation.mutateAsync,
-    getGroupUsers,
+    getUsersInGroup,
     addUserToGroup: addUserToGroupMutation.mutateAsync,
     removeUserFromGroup: removeUserFromGroupMutation.mutateAsync,
-    getGroupMenuItemGroups,
+    getUserMenuItemGroups,
     addMenuItemGroupToGroup: addMenuItemGroupToGroupMutation.mutateAsync,
     removeMenuItemGroupFromGroup: removeMenuItemGroupFromGroupMutation.mutateAsync,
   };

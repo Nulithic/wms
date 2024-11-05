@@ -9,21 +9,21 @@ interface MenuItemGroupsTableProps {
 
 export default function MenuItemGroupsTable({ groupId }: MenuItemGroupsTableProps) {
   const { getMenuItemGroups } = useMenuItemGroups();
-  const { getGroupMenuItemGroups, addMenuItemGroupToGroup, removeMenuItemGroupFromGroup } = useGroups();
+  const { getUserMenuItemGroups, addMenuItemGroupToGroup, removeMenuItemGroupFromGroup } = useGroups();
   const { data: menuItemGroups, isLoading: isMenuItemGroupsLoading } = getMenuItemGroups();
-  const { data: groupMenuItemGroups, isLoading: isGroupMenuItemGroupsLoading } = getGroupMenuItemGroups(groupId);
+  const { data: userMenuItemGroups, isLoading: isUserMenuItemGroupsLoading } = getUserMenuItemGroups(groupId);
 
   const [menuItemGroupStates, setMenuItemGroupStates] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
-    if (groupMenuItemGroups) {
-      const initialStates = groupMenuItemGroups.reduce((acc, group) => {
+    if (userMenuItemGroups) {
+      const initialStates = userMenuItemGroups.reduce((acc, group) => {
         acc[group.id] = true;
         return acc;
       }, {} as { [key: string]: boolean });
       setMenuItemGroupStates(initialStates);
     }
-  }, [groupMenuItemGroups]);
+  }, [userMenuItemGroups]);
 
   const handleToggle = async (menuItemGroupId: string) => {
     const newState = !menuItemGroupStates[menuItemGroupId];
@@ -36,7 +36,7 @@ export default function MenuItemGroupsTable({ groupId }: MenuItemGroupsTableProp
     }
   };
 
-  if (isMenuItemGroupsLoading || isGroupMenuItemGroupsLoading) {
+  if (isMenuItemGroupsLoading || isUserMenuItemGroupsLoading) {
     return <div>Loading...</div>;
   }
 
