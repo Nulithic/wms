@@ -5,8 +5,12 @@ import {
   Person as UserManagementIcon,
   Group as GroupManagementIcon,
   Menu as ApplicationMenusIcon,
+  AccountCircle as ProfileIcon,
+  Notifications as NotificationsIcon,
+  Palette as ThemeIcon,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import { useIsAdmin } from "@/libs/hooks/useIsAdmin";
 
 interface SettingCard {
   title: string;
@@ -15,11 +19,15 @@ interface SettingCard {
 }
 
 const settingsGroups = {
+  Account: [
+    { title: "Profile Settings", icon: <ProfileIcon />, path: "/settings/profile" },
+    { title: "Notifications", icon: <NotificationsIcon />, path: "/settings/notifications" },
+    { title: "Theme", icon: <ThemeIcon />, path: "/settings/theme" },
+  ],
   Permissions: [
-    { title: "User Management", icon: <UserManagementIcon />, path: "/settings/users" },
-    { title: "Group Management", icon: <GroupManagementIcon />, path: "/settings/groups" },
-    { title: "Application Menus", icon: <ApplicationMenusIcon />, path: "/settings/menus" },
-    // { title: "Application Settings", icon: <ApplicationSettingsIcon />, path: "/settings/application" },
+    { title: "User Management", icon: <UserManagementIcon />, path: "/admin/users" },
+    { title: "Group Management", icon: <GroupManagementIcon />, path: "/admin/groups" },
+    { title: "Application Menus", icon: <ApplicationMenusIcon />, path: "/admin/menu-items" },
   ],
 };
 
@@ -49,22 +57,35 @@ const SettingCard = ({ title, icon, path }: SettingCard) => {
 };
 
 export default function SettingsPage() {
+  const { isAdmin, isLoading } = useIsAdmin();
+
+  if (isLoading) {
+    return <Box sx={{ p: 3 }}>Loading...</Box>;
+  }
+
   return (
     <Box sx={{ p: 3 }}>
-      {Object.entries(settingsGroups).map(([groupTitle, settings]) => (
-        <Box key={groupTitle} sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {groupTitle}
-          </Typography>
-          <Grid container spacing={3}>
-            {settings.map((setting) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={setting.title}>
-                <SettingCard {...setting} />
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      ))}
+      {Object.entries(settingsGroups).map(([groupTitle, settings]) => {
+        // Skip the Permissions group for non-admin users
+        if (groupTitle === "Permissions" && !isAdmin) {
+          return null;
+        }
+
+        return (
+          <Box key={groupTitle} sx={{ mb: 4 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              {groupTitle}
+            </Typography>
+            <Grid container spacing={3}>
+              {settings.map((setting) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={setting.title}>
+                  <SettingCard {...setting} />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        );
+      })}
     </Box>
   );
 }
