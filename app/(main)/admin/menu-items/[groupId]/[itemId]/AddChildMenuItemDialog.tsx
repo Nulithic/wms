@@ -1,7 +1,7 @@
 import { FormEvent } from "react";
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Box } from "@mui/material";
 import { MenuItemData } from "@/libs/api/types";
-
+import { pathUtils } from "@/utils/pathUtils";
 interface AddChildMenuItemDialogProps {
   open: boolean;
   onClose: () => void;
@@ -21,12 +21,7 @@ export default function AddChildMenuItemDialog({
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const title = formData.get("title") as string;
-    let path = formData.get("path") as string;
-
-    // Add leading slash if not present and path is not empty
-    if (path && !path.startsWith("/")) {
-      path = `/${path}`;
-    }
+    const path = pathUtils.removeLeadingSlash(formData.get("path") as string);
 
     onAddChildItem({
       title,

@@ -15,32 +15,24 @@ import {
 import { Label, ExpandLess, ExpandMore, Settings } from "@mui/icons-material";
 import { StyledDrawer } from "@/styles/layoutStyles";
 import DrawerHeader from "./DrawerHeader";
-import { useMenuItems } from "@/libs/api/queries/admin/menuItemQueries";
 import { MenuItemData } from "@/libs/api/types";
-type UserItem = {
-  title: string;
-  path: string;
-  subItems: UserItem[];
-  hasSubItems: boolean;
-};
+import { pathUtils } from "@/utils/pathUtils";
+interface MenuItem extends MenuItemData {
+  children: MenuItem[];
+}
 
 interface SidebarProps {
   open: boolean;
-  userItems: UserItem[];
+  menuItems: MenuItemData[] | undefined;
+  isLoading: boolean;
 }
 
-function Sidebar({ open, userItems }: SidebarProps) {
+function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
   const theme = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<string | false>(false);
-
-  // Menu Items
-
-  const { getMenuItems } = useMenuItems();
-  const { data: menuItems, isLoading, isError } = getMenuItems();
-
-  const [menuTree, setMenuTree] = useState<MenuItemData[]>([]);
+  const [menuTree, setMenuTree] = useState<MenuItem[]>([]);
 
   useEffect(() => {
     if (menuItems) {
@@ -49,38 +41,51 @@ function Sidebar({ open, userItems }: SidebarProps) {
     }
   }, [menuItems]);
 
-  const buildMenuTree = (items: MenuItemData[]): MenuItemData[] => {
-    const itemMap = new Map<string, MenuItemData & { children: MenuItemData[] }>();
-    items.forEach((item) => itemMap.set(item.id, { ...item, children: [] }));
+  const buildMenuTree = (items: MenuItemData[]): MenuItem[] => {
+    const itemMap = new Map<string, MenuItem>();
 
-    const tree: MenuItemData[] = [];
-    itemMap.forEach((item) => {
-      if (item.parent_id === null) {
-        tree.push(item);
-      } else {
-        const parent = itemMap.get(item.parent_id);
-        if (parent) {
-          parent.children.push(item);
+    // First, convert all items to MenuItem type with empty children array
+    items.forEach((item) => {
+      itemMap.set(item.id, { ...item, children: [] });
+    });
+
+    const tree: MenuItem[] = [];
+
+    // Then build the tree structure
+    items.forEach((item) => {
+      const menuItem = itemMap.get(item.id);
+      if (menuItem) {
+        if (item.parent_id === null) {
+          tree.push(menuItem);
+        } else {
+          const parent = itemMap.get(item.parent_id);
+          if (parent) {
+            parent.children.push(menuItem);
+          }
         }
       }
+    });
+
+    // Sort by order_index
+    tree.sort((a, b) => a.order_index - b.order_index);
+    tree.forEach((item) => {
+      item.children.sort((a, b) => a.order_index - b.order_index);
     });
 
     return tree;
   };
 
-  // End Menu Items
-
-  const handleNav = (item: UserItem, isSubItem: boolean) => (): void => {
-    router.push(item.path);
-    if (!isSubItem && !item.hasSubItems) {
-      setExpanded(false);
+  const handleNav = (path: string | null, parentPath?: string | null) => (): void => {
+    if (path) {
+      const fullPath = pathUtils.combine(parentPath || "", path);
+      router.push(fullPath);
     }
   };
 
-  const handleExpanded = (item: UserItem) => (): void => {
-    if (item.hasSubItems) {
+  const handleExpanded = (item: MenuItem) => (): void => {
+    if (item.children.length > 0) {
       setExpanded(expanded === item.title ? false : item.title);
-    } else {
+    } else if (item.path) {
       router.push(item.path);
       setExpanded(false);
     }
@@ -124,30 +129,31 @@ function Sidebar({ open, userItems }: SidebarProps) {
     },
   };
 
-  const renderListItem = (item: UserItem, isSubItem = false) => {
-    const isActive = pathname === item.path;
+  const renderMenuItem = (item: MenuItem, isChild = false, parentPath?: string | null) => {
+    const isActive = item.path ? pathname === item.path : false;
+    const hasChildren = item.children.length > 0;
 
     return (
       <ListItem disablePadding sx={listItemStyles.root(isActive)}>
         <ListItemButton
-          sx={listItemStyles.button(isSubItem)}
-          onClick={isSubItem ? handleNav(item, isSubItem) : handleExpanded(item)}
+          sx={listItemStyles.button(isChild)}
+          onClick={isChild ? handleNav(item.path, parentPath) : handleExpanded(item)}
         >
           <ListItemIcon sx={listItemStyles.icon}>
             <Label />
           </ListItemIcon>
           <ListItemText primary={item.title} sx={listItemStyles.text} />
-          {item.hasSubItems && !isSubItem && (expanded === item.title ? <ExpandLess /> : <ExpandMore />)}
+          {hasChildren && !isChild && (expanded === item.title ? <ExpandLess /> : <ExpandMore />)}
         </ListItemButton>
       </ListItem>
     );
   };
 
-  const renderSubItems = (item: UserItem) => (
+  const renderChildItems = (item: MenuItem) => (
     <Collapse in={expanded === item.title} timeout="auto" unmountOnExit>
       <List disablePadding sx={listStyles.subList}>
-        {item.subItems.map((subItem, index) => (
-          <Fragment key={index}>{renderListItem(subItem, true)}</Fragment>
+        {item.children.map((child) => (
+          <Fragment key={child.id}>{renderMenuItem(child, true, item.path)}</Fragment>
         ))}
       </List>
     </Collapse>
@@ -158,11 +164,11 @@ function Sidebar({ open, userItems }: SidebarProps) {
       <DrawerHeader />
       <Divider />
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        {userItems.map((item, index) => (
-          <Fragment key={index}>
+        {menuTree.map((item) => (
+          <Fragment key={item.id}>
             <List disablePadding sx={listStyles.mainList(expanded === item.title)}>
-              {renderListItem(item)}
-              {item.hasSubItems && renderSubItems(item)}
+              {renderMenuItem(item)}
+              {item.children.length > 0 && renderChildItems(item)}
             </List>
           </Fragment>
         ))}

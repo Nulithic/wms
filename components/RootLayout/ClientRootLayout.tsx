@@ -9,19 +9,61 @@ import { Box, CssBaseline } from "@mui/material";
 import theme from "./theme";
 import AppHeader from "./AppHeader";
 import Sidebar from "./Sidebar";
-import { userItems } from "@/utils/menuItems";
-import { getTitleFromPath } from "@/utils/navigation";
-
+import { useMenuItems } from "@/libs/api/queries/admin/menuItemQueries";
+import { pathUtils } from "@/utils/pathUtils";
 interface ClientRootLayoutProps {
   children: ReactNode;
 }
 
-// Wrap the RootLayout with TitleProvider
 export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
   const pathname = usePathname();
-  const currentTitle = useMemo(() => getTitleFromPath(userItems, pathname), [pathname]);
-
   const [open, setOpen] = useState<boolean>(true);
+  const { getMenuItems } = useMenuItems();
+  const { data: menuItems, isLoading } = getMenuItems();
+
+  const currentTitle = useMemo(() => {
+    if (!menuItems || isLoading) return "";
+
+    // Split the pathname into segments and remove empty strings
+    const pathSegments = pathname.split("/").filter(Boolean);
+
+    if (pathSegments.length === 0) {
+      // Handle root path
+      const rootItem = menuItems.find((item) => item.path === "/");
+      return rootItem?.title || "Home";
+    }
+
+    // Try to find the deepest matching item by traversing the path segments
+    let currentPath = "";
+    let matchedTitle = "";
+
+    for (const segment of pathSegments) {
+      currentPath = currentPath ? `${currentPath}/${segment}` : `/${segment}`;
+
+      const matchingItem = menuItems.find((item) => {
+        // For parent items
+        if (!item.parent_id && item.path === currentPath) {
+          return true;
+        }
+
+        // For child items
+        if (item.parent_id) {
+          const parent = menuItems.find((p) => p.id === item.parent_id);
+          if (parent?.path) {
+            const combinedPath = pathUtils.combine(parent.path, item.path || "");
+            return currentPath === combinedPath;
+          }
+        }
+        return false;
+      });
+
+      if (matchingItem) {
+        matchedTitle = matchingItem.title;
+      }
+    }
+
+    return matchedTitle;
+  }, [menuItems, pathname, isLoading]);
 
   const handleDrawerToggle = () => setOpen(!open);
 
@@ -31,7 +73,7 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
           <AppHeader open={open} handleDrawerToggle={handleDrawerToggle} title={currentTitle} />
-          <Sidebar open={open} userItems={userItems} />
+          <Sidebar open={open} menuItems={menuItems} isLoading={isLoading} />
           <Box component="main" sx={{ flexGrow: 1, p: 3, marginTop: "64px" }}>
             {children}
           </Box>

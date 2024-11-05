@@ -1,6 +1,6 @@
 import { FormEvent } from "react";
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Box } from "@mui/material";
-
+import { pathUtils } from "@/utils/pathUtils";
 interface AddMenuItemDialogProps {
   open: boolean;
   onClose: () => void;
@@ -20,14 +20,8 @@ export default function AddMenuItemDialog({
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const title = formData.get("title") as string;
-    let path = formData.get("path") as string;
+    const path = pathUtils.removeLeadingSlash(formData.get("path") as string);
 
-    // Add leading slash if not present and path is not empty
-    if (path && !path.startsWith("/")) {
-      path = `/${path}`;
-    }
-
-    // Set order_index to be last in the list
     const lastOrderIndex = menuItems.length > 0 ? Math.max(...menuItems.map((item) => item.order_index)) + 1 : 0;
 
     const newMenuItem = {

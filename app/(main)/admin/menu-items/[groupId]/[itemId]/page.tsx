@@ -104,9 +104,6 @@ export default function MenuItemDetailsPage() {
 
   const handlePathChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newPath = e.target.value;
-    if (newPath && !newPath.startsWith("/")) {
-      newPath = `/${newPath}`;
-    }
     setPath(newPath);
     setHasChanges(true);
   };
