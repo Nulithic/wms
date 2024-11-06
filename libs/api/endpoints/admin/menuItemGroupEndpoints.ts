@@ -9,8 +9,8 @@ export const createMenuItemGroupEndpoints = (instance: AxiosInstance) => ({
   addMenuItemGroup: (groupData: Omit<MenuItemGroupData, "id">) =>
     instance.post<MenuItemGroupData>(BASE_URL, { action: "addMenuItemGroup", ...groupData }),
 
-  updateMenuItemGroup: (groupData: MenuItemGroupData) =>
-    instance.post<MenuItemGroupData>(BASE_URL, { action: "updateMenuItemGroup", ...groupData }),
+  updateMenuItemGroup: (groups: MenuItemGroupData[]) =>
+    instance.post<MenuItemGroupData[]>(BASE_URL, { action: "updateMenuItemGroup", groups }),
 
   deleteMenuItemGroup: (id: string) => instance.post<void>(BASE_URL, { action: "deleteMenuItemGroup", id }),
 });

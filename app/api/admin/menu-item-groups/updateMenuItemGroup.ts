@@ -3,14 +3,9 @@ import { NextResponse } from "next/server";
 
 const handleUpdateMenuItemGroup = async (supabase: SupabaseClient, body: any) => {
   try {
-    const { id, name, order_index } = body;
+    const { groups } = body;
 
-    const { data, error } = await supabase
-      .from("menu_item_groups")
-      .update({ name, order_index })
-      .eq("id", id)
-      .select()
-      .single();
+    const { data, error } = await supabase.from("menu_item_groups").upsert(groups).select();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

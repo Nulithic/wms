@@ -65,9 +65,14 @@ export default function MenuItemsPage() {
     }
     setDeletedGroups([]); // Clear the deleted groups array
 
-    // Update all remaining groups with new order
-    for (const group of localGroups) {
-      await updateMenuItemGroup(group);
+    // Update all changed groups in a single request
+    const changedGroups = localGroups.filter((localGroup) => {
+      const originalGroup = groups?.find((g) => g.id === localGroup.id);
+      return originalGroup && originalGroup.order_index !== localGroup.order_index;
+    });
+
+    if (changedGroups.length > 0) {
+      await updateMenuItemGroup(changedGroups);
     }
   };
 

@@ -20,7 +20,7 @@ export function useMenuItemGroups() {
   });
 
   const updateMenuItemGroupMutation = useMutation({
-    mutationFn: (groupData: MenuItemGroupData) => apiClient.menuItemGroups.updateMenuItemGroup(groupData),
+    mutationFn: (groupData: MenuItemGroupData[]) => apiClient.menuItemGroups.updateMenuItemGroup(groupData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["menuItemGroups"] });
     },
