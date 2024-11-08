@@ -3,7 +3,7 @@ import { createUserEndpoints } from "./endpoints/admin/usersEndpoints";
 import { createGroupEndpoints } from "./endpoints/admin/groupsEndpoints";
 import { createMenuItemEndpoints } from "./endpoints/admin/menuItemEndpoints";
 import { createMenuItemGroupEndpoints } from "./endpoints/admin/menuItemGroupEndpoints";
-// Import other endpoint creators as needed
+import { createUserMenuItemEndpoints } from "./endpoints/menuItemEndpoints";
 
 const BASE_URL = "/api";
 
@@ -19,7 +19,7 @@ const createApiClient = (instance: AxiosInstance) => ({
   groups: createGroupEndpoints(instance),
   menuItems: createMenuItemEndpoints(instance),
   menuItemGroups: createMenuItemGroupEndpoints(instance),
-  // Add other endpoint categories
+  userMenuItems: createUserMenuItemEndpoints(instance),
 });
 
 export const apiClient = createApiClient(axiosInstance);

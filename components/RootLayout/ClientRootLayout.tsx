@@ -9,7 +9,7 @@ import { Box, CssBaseline } from "@mui/material";
 import theme from "./theme";
 import AppHeader from "./AppHeader";
 import Sidebar from "./Sidebar";
-import { useMenuItems } from "@/libs/api/queries/admin/menuItemQueries";
+import { useUserMenuItems } from "@/libs/api/queries/menuItemQueries";
 import { pathUtils } from "@/utils/pathUtils";
 interface ClientRootLayoutProps {
   children: ReactNode;
@@ -18,18 +18,18 @@ interface ClientRootLayoutProps {
 export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState<boolean>(true);
-  const { getMenuItems } = useMenuItems();
-  const { data: menuItems, isLoading } = getMenuItems();
+
+  const { data: userMenuItems, isLoading } = useUserMenuItems();
 
   const currentTitle = useMemo(() => {
-    if (!menuItems || isLoading) return "";
+    if (!userMenuItems || isLoading) return "";
 
     // Split the pathname into segments and remove empty strings
     const pathSegments = pathname.split("/").filter(Boolean);
 
     if (pathSegments.length === 0) {
       // Handle root path
-      const rootItem = menuItems.find((item) => item.path === "/");
+      const rootItem = userMenuItems.find((item) => item.path === "/");
       return rootItem?.title || "Home";
     }
 
@@ -40,7 +40,7 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
     for (const segment of pathSegments) {
       currentPath = currentPath ? `${currentPath}/${segment}` : `/${segment}`;
 
-      const matchingItem = menuItems.find((item) => {
+      const matchingItem = userMenuItems.find((item) => {
         // For parent items
         if (!item.parent_id && item.path === currentPath) {
           return true;
@@ -48,7 +48,7 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
 
         // For child items
         if (item.parent_id) {
-          const parent = menuItems.find((p) => p.id === item.parent_id);
+          const parent = userMenuItems.find((p) => p.id === item.parent_id);
           if (parent?.path) {
             const combinedPath = pathUtils.combine(parent.path, item.path || "");
             return currentPath === combinedPath;
@@ -63,7 +63,7 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
     }
 
     return matchedTitle;
-  }, [menuItems, pathname, isLoading]);
+  }, [userMenuItems, pathname, isLoading]);
 
   const handleDrawerToggle = () => setOpen(!open);
 
@@ -73,7 +73,7 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
           <AppHeader open={open} handleDrawerToggle={handleDrawerToggle} title={currentTitle} />
-          <Sidebar open={open} menuItems={menuItems} isLoading={isLoading} />
+          <Sidebar open={open} menuItems={userMenuItems} isLoading={isLoading} />
           <Box component="main" sx={{ flexGrow: 1, p: 3, marginTop: "64px" }}>
             {children}
           </Box>
