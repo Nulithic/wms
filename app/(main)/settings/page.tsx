@@ -11,6 +11,7 @@ import {
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { useIsAdmin } from "@/libs/hooks/useIsAdmin";
+import { useStaticTitle } from "@/libs/hooks/useStaticTitle";
 
 interface SettingCard {
   title: string;
@@ -57,6 +58,9 @@ const SettingCard = ({ title, icon, path }: SettingCard) => {
 };
 
 export default function SettingsPage() {
+  console.count("SettingsPage");
+  useStaticTitle("Settings");
+
   const { isAdmin, isLoading } = useIsAdmin();
 
   if (isLoading) {

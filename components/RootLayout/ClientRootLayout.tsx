@@ -11,6 +11,8 @@ import AppHeader from "./AppHeader";
 import Sidebar from "./Sidebar";
 import { useUserMenuItems } from "@/libs/api/queries/menuItemQueries";
 import { pathUtils } from "@/utils/pathUtils";
+import { useTitle } from "./TitleContext";
+
 interface ClientRootLayoutProps {
   children: ReactNode;
 }
@@ -18,10 +20,13 @@ interface ClientRootLayoutProps {
 export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState<boolean>(true);
+  const { title: manualTitle } = useTitle();
 
   const { data: userMenuItems, isLoading } = useUserMenuItems();
 
   const currentTitle = useMemo(() => {
+    if (manualTitle) return manualTitle;
+
     if (!userMenuItems || isLoading) return "";
 
     // Split the pathname into segments and remove empty strings
@@ -63,7 +68,7 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
     }
 
     return matchedTitle;
-  }, [userMenuItems, pathname, isLoading]);
+  }, [userMenuItems, pathname, isLoading, manualTitle]);
 
   const handleDrawerToggle = () => setOpen(!open);
 
