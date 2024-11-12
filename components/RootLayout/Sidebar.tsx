@@ -12,7 +12,7 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import { Label, ExpandLess, ExpandMore, Settings } from "@mui/icons-material";
+import { Label, ExpandLess, ExpandMore, Settings, Home } from "@mui/icons-material";
 import { StyledDrawer } from "@/styles/layoutStyles";
 import DrawerHeader from "./DrawerHeader";
 import { MenuItemData } from "@/libs/api/types";
@@ -105,24 +105,42 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
     },
   };
 
+  const isMenuItemActive = (item: MenuItem, parentPath?: string): boolean => {
+    // Build the full path for the current item
+    const fullItemPath = pathUtils.combine(parentPath || "", item.path || "");
+
+    if (pathname === fullItemPath) return true;
+
+    // Check if any children are active
+    return item.children.some((child) => isMenuItemActive(child, fullItemPath));
+  };
+
   const listItemStyles = {
-    root: (isActive: boolean) => ({
+    root: (isActive: boolean, isChild = false) => ({
       display: "block",
-      backgroundColor: isActive ? theme.palette.action.selected : "inherit",
+      borderTop: isActive ? `1px solid ${theme.palette.primary.main}40` : "none",
+      borderBottom: isActive ? `1px solid ${theme.palette.primary.main}40` : "none",
+      backgroundColor: isActive ? theme.palette.primary.main + "08" : "inherit",
+      borderLeft: !isChild && isActive ? `4px solid ${theme.palette.primary.main}` : "none",
+      paddingLeft: !isChild && isActive ? 0 : "4px",
     }),
-    button: (isSubItem: boolean) => ({
-      minHeight: 48,
+    button: (isChild: boolean) => ({
+      height: isChild ? 36 : 48,
       justifyContent: open ? "initial" : "center",
-      px: theme.spacing(isSubItem ? 4 : 2.5),
+      px: theme.spacing(isChild ? 4 : 2.5),
     }),
     icon: {
       minWidth: 0,
       mr: open ? theme.spacing(3) : "auto",
       justifyContent: "center",
     },
-    text: {
+    text: (isChild: boolean) => ({
       opacity: open ? 1 : 0,
-    },
+      "& .MuiTypography-root": {
+        // fontSize: isChild ? "0.875rem" : "inherit",
+        fontWeight: isChild ? "normal" : 600,
+      },
+    }),
     settingsButton: {
       marginTop: "auto",
       borderTop: `1px solid ${theme.palette.divider}`,
@@ -130,19 +148,22 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
   };
 
   const renderMenuItem = (item: MenuItem, isChild = false, parentPath?: string | null) => {
-    const isActive = item.path ? pathname === item.path : false;
+    // Pass the parent path to isMenuItemActive
+    const isActive = isMenuItemActive(item, parentPath || "");
     const hasChildren = item.children.length > 0;
 
     return (
-      <ListItem disablePadding sx={listItemStyles.root(isActive)}>
+      <ListItem disablePadding sx={listItemStyles.root(isActive, isChild)}>
         <ListItemButton
           sx={listItemStyles.button(isChild)}
           onClick={isChild ? handleNav(item.path, parentPath) : handleExpanded(item)}
         >
-          <ListItemIcon sx={listItemStyles.icon}>
-            <Label />
-          </ListItemIcon>
-          <ListItemText primary={item.title} sx={listItemStyles.text} />
+          {!isChild && (
+            <ListItemIcon sx={listItemStyles.icon}>
+              <Label />
+            </ListItemIcon>
+          )}
+          <ListItemText primary={item.title} sx={listItemStyles.text(isChild)} />
           {hasChildren && !isChild && (expanded === item.title ? <ExpandLess /> : <ExpandMore />)}
         </ListItemButton>
       </ListItem>
@@ -153,7 +174,10 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
     <Collapse in={expanded === item.title} timeout="auto" unmountOnExit>
       <List disablePadding sx={listStyles.subList}>
         {item.children.map((child) => (
-          <Fragment key={child.id}>{renderMenuItem(child, true, item.path)}</Fragment>
+          <Fragment key={child.id}>
+            {renderMenuItem(child, true, item.path)}
+            <Divider />
+          </Fragment>
         ))}
       </List>
     </Collapse>
@@ -164,12 +188,25 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
       <DrawerHeader />
       <Divider />
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <List disablePadding>
+          <ListItem disablePadding sx={listItemStyles.root(pathname === "/")}>
+            <ListItemButton onClick={() => router.push("/")} sx={listItemStyles.button(false)}>
+              <ListItemIcon sx={listItemStyles.icon}>
+                <Home />
+              </ListItemIcon>
+              <ListItemText primary="Home" sx={listItemStyles.text(false)} />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Divider />
+
         {menuTree.map((item) => (
           <Fragment key={item.id}>
             <List disablePadding sx={listStyles.mainList(expanded === item.title)}>
               {renderMenuItem(item)}
               {item.children.length > 0 && renderChildItems(item)}
             </List>
+            <Divider />
           </Fragment>
         ))}
         <ListItem disablePadding sx={listItemStyles.settingsButton}>
@@ -177,7 +214,7 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
             <ListItemIcon sx={listItemStyles.icon}>
               <Settings />
             </ListItemIcon>
-            <ListItemText primary="Settings" sx={listItemStyles.text} />
+            <ListItemText primary="Settings" sx={listItemStyles.text(false)} />
           </ListItemButton>
         </ListItem>
       </Box>

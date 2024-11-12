@@ -1,7 +1,6 @@
 import { useState, MouseEvent } from "react";
-import { AppBar, Toolbar, IconButton, Typography, Menu, MenuItem } from "@mui/material";
-import { Menu as MenuIcon, AccountCircle } from "@mui/icons-material";
-import SignOutMenuItem from "./SignOutMenu";
+import { Toolbar, IconButton, Typography, Menu, MenuItem } from "@mui/material";
+import { Menu as MenuIcon, Logout } from "@mui/icons-material";
 import { StyledAppBar } from "@/styles/layoutStyles";
 
 interface AppHeaderProps {
@@ -24,24 +23,23 @@ function AppHeader({ open, handleDrawerToggle, title }: AppHeaderProps) {
   return (
     <StyledAppBar position="fixed" open={open}>
       <Toolbar>
-        <IconButton color="inherit" aria-label="toggle drawer" onClick={handleDrawerToggle} edge="start" sx={{ marginRight: 5 }}>
+        <IconButton color="inherit" onClick={handleDrawerToggle} edge="start" sx={{ marginRight: 5 }}>
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
           {title}
         </Typography>
         <div>
-          <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleMenu} color="inherit">
-            <AccountCircle />
+          <IconButton size="large" onClick={handleMenu} color="inherit">
+            <Logout />
           </IconButton>
           <Menu
             id="menu-appbar"
             anchorEl={menuAnchor}
             anchorOrigin={{
-              vertical: "top",
+              vertical: "bottom",
               horizontal: "right",
             }}
-            keepMounted
             transformOrigin={{
               vertical: "top",
               horizontal: "right",
@@ -49,8 +47,17 @@ function AppHeader({ open, handleDrawerToggle, title }: AppHeaderProps) {
             open={Boolean(menuAnchor)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
-            <SignOutMenuItem />
+            {/* <MenuItem onClick={handleMenuClose}>My Account</MenuItem> */}
+            <MenuItem>
+              <form action="/signout" method="post">
+                <button
+                  type="submit"
+                  style={{ background: "none", border: "none", padding: 0, font: "inherit", cursor: "pointer" }}
+                >
+                  Sign Out
+                </button>
+              </form>
+            </MenuItem>
           </Menu>
         </div>
       </Toolbar>
