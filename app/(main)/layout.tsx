@@ -1,22 +1,15 @@
 import { ReactNode } from "react";
 import ClientRootLayout from "@/components/RootLayout/ClientRootLayout";
 import AuthLayout from "./AuthLayout";
-import { TitleProvider } from "@/components/RootLayout/TitleContext";
 
-interface RootLayoutProps {
+interface MainLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function MainLayout({ children }: MainLayoutProps) {
   return (
-    <html lang="en">
-      <body>
-        <TitleProvider>
-          <ClientRootLayout>
-            <AuthLayout>{children}</AuthLayout>
-          </ClientRootLayout>
-        </TitleProvider>
-      </body>
-    </html>
+    <ClientRootLayout>
+      <AuthLayout>{children}</AuthLayout>
+    </ClientRootLayout>
   );
 }
