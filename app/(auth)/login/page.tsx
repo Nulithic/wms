@@ -10,6 +10,7 @@ import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { login } from "./actions";
 
@@ -40,11 +41,11 @@ export default function LoginPage() {
       const result = await login(formData);
       if (result?.error) {
         setErrorMessage(result.error);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Login failed:", error);
       setErrorMessage("An unexpected error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -64,58 +65,80 @@ export default function LoginPage() {
         <Grid item component={Paper} elevation={1} p={5} textAlign="center" square>
           <img src="/splgroup_logo.png" alt="splgroup" height={100} />
           <div>
-            <Typography component="h1" variant="h5">
-              Sign In
-            </Typography>
             <form onSubmit={handleSubmit}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="Email"
-                id="email"
-                name="email"
-                type="email"
-                autoFocus
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="Password"
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-
-              {errorMessage && (
-                <Typography color="error" variant="body2" sx={{ my: 2 }}>
-                  {errorMessage}
-                </Typography>
+              {!loading ? (
+                <>
+                  <Typography component="h1" variant="h5">
+                    Sign In
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Email"
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoFocus
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Password"
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      height: "48px", // Reserve consistent space for error message
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {errorMessage && (
+                      <Typography color="error" variant="body2">
+                        {errorMessage}
+                      </Typography>
+                    )}
+                  </Box>
+                  <Button type="submit" fullWidth variant="contained" color="primary">
+                    Sign in
+                  </Button>
+                  <Grid container>
+                    <Grid item>
+                      <Link href="#" variant="body2">
+                        {"Forgot Password?"}
+                      </Link>
+                    </Grid>
+                  </Grid>
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "200px",
+                    opacity: loading ? 1 : 0,
+                    transition: "opacity 0.3s ease-in-out",
+                  }}
+                >
+                  <CircularProgress size={60} />
+                </Box>
               )}
-
-              <Button type="submit" fullWidth variant="contained" color="primary" disabled={loading}>
-                {loading ? "Signing in..." : "Sign in"}
-              </Button>
-              <Grid container>
-                <Grid item>
-                  <Link href="#" variant="body2">
-                    {"Forgot Password?"}
-                  </Link>
-                </Grid>
-              </Grid>
-              <Box mt={5}>
-                <Copyright />
-              </Box>
+              <Box mt={5}>{/* <Copyright /> */}</Box>
             </form>
           </div>
         </Grid>

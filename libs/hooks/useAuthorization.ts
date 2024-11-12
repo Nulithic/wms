@@ -1,7 +1,7 @@
 import { usePathname } from "next/navigation";
 import { useUserMenuItems } from "@/libs/api/queries/menuItemQueries";
 
-const excludedPaths = ["/", "/unauthorized"];
+const excludedPaths = ["/", "/settings"];
 
 export function useAuthorization() {
   const pathname = usePathname();
