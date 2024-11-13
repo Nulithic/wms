@@ -5,6 +5,8 @@ const handleGetUsers = async (supabase: SupabaseClient, body: any) => {
   try {
     const { page, perPage } = body;
 
+    console.log(page, perPage);
+
     const { data, error } = await supabase.auth.admin.listUsers({
       page,
       perPage,
