@@ -56,6 +56,7 @@ export default function Users() {
         ),
       },
       {
+        id: "id",
         accessorKey: "id",
         cell: (info) => (
           <Link href={`${pathname}/${info.getValue()}`} className="text-blue-600 hover:underline">
@@ -66,6 +67,7 @@ export default function Users() {
         footer: (props) => props.column.id,
       },
       {
+        id: "email",
         accessorKey: "email",
         cell: (info) => info.getValue(),
         header: () => <span>Email</span>,
