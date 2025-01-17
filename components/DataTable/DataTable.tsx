@@ -10,6 +10,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
+  type FilterFn,
 } from "@tanstack/react-table";
 import {
   Table as MUITable,
@@ -114,8 +115,8 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
     if (open) {
       const activeFilters = table.getState().columnFilters.map((filter) => ({
         column: filter.id,
-        operator: "starts with",
-        value: filter.value as string,
+        operator: (filter.value as { operator: string })?.operator || "starts with",
+        value: (filter.value as { value: string })?.value || "",
       }));
 
       if (activeFilters.length > 0) {
@@ -149,7 +150,11 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
   }, [open, initialColumn, table]);
 
   const handleAddFilter = () => {
-    setTempConditions([...tempConditions, { column: "", operator: "starts with", value: "" }]);
+    const availableColumns = filteredColumns.filter((column) => !tempConditions.some((c) => c.column === column.id));
+
+    if (availableColumns.length > 0) {
+      setTempConditions([...tempConditions, { column: "", operator: "starts with", value: "" }]);
+    }
   };
 
   const handleRemoveFilter = (index: number) => {
@@ -167,7 +172,11 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
   };
 
   const handleApply = () => {
-    onApply(tempConditions.filter((c) => c.column && c.value));
+    // Apply filters that either have a value or use blank operators
+    const validFilters = tempConditions.filter(
+      (c) => c.column && (["is blank", "is not blank"].includes(c.operator) || c.value),
+    );
+    onApply(validFilters);
     onClose();
   };
 
@@ -219,9 +228,10 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
       <Stack spacing={2}>
         {tempConditions.map((condition, index) => (
           <Box key={index}>
-            {index > 0 && <Typography sx={{ my: 1 }}>and</Typography>}
             <Stack direction="row" spacing={1} alignItems="center">
-              <Box sx={{ minWidth: 120 }}>{index === 0 ? <Typography>Where</Typography> : null}</Box>
+              <Box sx={{ minWidth: 120 }}>
+                {index === 0 ? <Typography>Where</Typography> : <Typography>and</Typography>}
+              </Box>
               <TextField
                 select
                 size="small"
@@ -229,11 +239,13 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
                 onChange={(e) => handleChange(index, "column", e.target.value)}
                 sx={{ minWidth: 150 }}
               >
-                {filteredColumns.map((column) => (
-                  <MenuItem key={column.id} value={column.id}>
-                    {column.header}
-                  </MenuItem>
-                ))}
+                {filteredColumns
+                  .filter((column) => !tempConditions.some((c, i) => i !== index && c.column === column.id))
+                  .map((column) => (
+                    <MenuItem key={column.id} value={column.id}>
+                      {column.header}
+                    </MenuItem>
+                  ))}
               </TextField>
               <TextField
                 select
@@ -244,14 +256,20 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
               >
                 <MenuItem value="starts with">starts with</MenuItem>
                 <MenuItem value="contains">contains</MenuItem>
-                <MenuItem value="equals">equals</MenuItem>
+                <MenuItem value="does not contain">does not contain</MenuItem>
+                <MenuItem value="is">is</MenuItem>
+                <MenuItem value="is not">is not</MenuItem>
+                <MenuItem value="is blank">is blank</MenuItem>
+                <MenuItem value="is not blank">is not blank</MenuItem>
               </TextField>
-              <TextField
-                size="small"
-                value={condition.value}
-                onChange={(e) => handleChange(index, "value", e.target.value)}
-                sx={{ minWidth: 150 }}
-              />
+              {!["is blank", "is not blank"].includes(condition.operator) && (
+                <TextField
+                  size="small"
+                  value={condition.value}
+                  onChange={(e) => handleChange(index, "value", e.target.value)}
+                  sx={{ minWidth: 150 }}
+                />
+              )}
               {tempConditions.length > 1 && (
                 <IconButton size="small" onClick={() => handleRemoveFilter(index)}>
                   <CloseIcon />
@@ -262,7 +280,12 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
         ))}
 
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-          <Button size="small" onClick={handleAddFilter} startIcon={<AddIcon />}>
+          <Button
+            size="small"
+            onClick={handleAddFilter}
+            startIcon={<AddIcon />}
+            disabled={filteredColumns.length <= tempConditions.length}
+          >
             Add a filter
           </Button>
           <Button size="small" onClick={handleClearAll}>
@@ -281,6 +304,35 @@ function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialC
   );
 }
 
+function filterByOperator(value: any, filterValue: string, operator: string): boolean {
+  // Handle null/undefined values
+  if (value == null) {
+    return operator === "is blank" || operator === "is not" || operator === "is not blank";
+  }
+
+  const stringValue = String(value).toLowerCase();
+  const filterString = filterValue.toLowerCase();
+
+  switch (operator) {
+    case "starts with":
+      return stringValue.startsWith(filterString);
+    case "contains":
+      return stringValue.includes(filterString);
+    case "does not contain":
+      return !stringValue.includes(filterString);
+    case "is":
+      return stringValue === filterString;
+    case "is not":
+      return stringValue !== filterString;
+    case "is blank":
+      return !stringValue.trim();
+    case "is not blank":
+      return stringValue.trim().length > 0;
+    default:
+      return false;
+  }
+}
+
 export function DataTable<TData>({
   data,
   columns: originalColumns,
@@ -293,23 +345,29 @@ export function DataTable<TData>({
   totalCount = 0,
 }: DataTableProps<TData>) {
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
-  const [activeFilters, setActiveFilters] = useState<FilterCondition[]>([]);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
   const filterButtonRef = useRef<HTMLButtonElement>(null);
 
   // Add meta property to columns to handle filter menu opening
   const columns = useMemo(
     () =>
-      originalColumns.map((col) => ({
-        ...col,
-        meta: {
-          ...col.meta,
-          openFilterMenu: (columnId: string) => {
-            setSelectedColumn(columnId);
-            setFilterAnchorEl(filterButtonRef.current);
-          },
-        },
-      })),
+      originalColumns.map(
+        (col) =>
+          ({
+            ...col,
+            filterFn: ((row, columnId, value) => {
+              const cellValue = row.getValue(columnId);
+              return filterByOperator(cellValue, value.value, value.operator);
+            }) as FilterFn<TData>,
+            meta: {
+              ...col.meta,
+              openFilterMenu: (columnId: string) => {
+                setSelectedColumn(columnId);
+                setFilterAnchorEl(filterButtonRef.current);
+              },
+            },
+          } as ColumnDef<TData, any>),
+      ),
     [originalColumns],
   );
 
@@ -323,14 +381,16 @@ export function DataTable<TData>({
   };
 
   const handleFilterApply = (filters: FilterCondition[]) => {
-    setActiveFilters(filters);
     // Clear all existing filters first
     table.getAllColumns().forEach((column) => {
       column.setFilterValue(undefined);
     });
     // Then apply new filters
     filters.forEach((filter) => {
-      table.getColumn(filter.column)?.setFilterValue(filter.value);
+      table.getColumn(filter.column)?.setFilterValue({
+        value: filter.value,
+        operator: filter.operator,
+      });
     });
     handleFilterClose();
   };
@@ -341,7 +401,7 @@ export function DataTable<TData>({
     state: {
       rowSelection,
       pagination: {
-        pageIndex: pageData.page - 1, // Convert to 0-based index
+        pageIndex: pageData.page - 1,
         pageSize: pageData.perPage,
       },
     },
@@ -350,8 +410,18 @@ export function DataTable<TData>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: true, // Enable manual pagination
+    manualPagination: true,
     pageCount: Math.ceil(totalCount / pageData.perPage),
+    filterFns: {
+      custom: (row, columnId, filterValue: { value: string; operator: string }) => {
+        const value = row.getValue(columnId);
+        return filterByOperator(value, filterValue.value, filterValue.operator);
+      },
+    },
+    globalFilterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId);
+      return filterByOperator(value, filterValue, "contains");
+    },
   });
 
   return (
@@ -452,7 +522,7 @@ export function DataTable<TData>({
           <TableFooter>
             <TableRow>
               <TablePagination
-                rowsPerPageOptions={[10, 20, 30, 40, 50]}
+                rowsPerPageOptions={[10, 25, 50, 100]}
                 count={totalCount}
                 rowsPerPage={pageData.perPage}
                 page={pageData.page - 1} // Convert to 0-based index
