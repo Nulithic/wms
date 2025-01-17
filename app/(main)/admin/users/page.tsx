@@ -3,7 +3,8 @@
 import { Fragment, useMemo, useState } from "react";
 import { Button } from "@mui/material";
 import { type ColumnDef, type RowSelectionState } from "@tanstack/react-table";
-import { DataTable, IndeterminateCheckbox } from "@/components/DataTable/DataTable";
+import { DataTable } from "@/components/DataTable/DataTable";
+import { IndeterminateCheckbox } from "@/components/DataTable/IndeterminateCheckbox";
 import AddUserDialog from "./AddUserDialog";
 import { useUsers } from "@/libs/api/queries/admin/usersQueries";
 import { usePathname } from "next/navigation";
