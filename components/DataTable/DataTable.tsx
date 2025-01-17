@@ -11,6 +11,7 @@ import {
   getPaginationRowModel,
   useReactTable,
   type FilterFn,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import {
   Table as MUITable,
@@ -40,6 +41,8 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import SortIcon from "@mui/icons-material/Sort";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 interface ColumnMeta {
   openFilterMenu?: (columnId: string) => void;
@@ -333,6 +336,202 @@ function filterByOperator(value: any, filterValue: string, operator: string): bo
   }
 }
 
+interface SortCondition {
+  column: string;
+  direction: "asc" | "desc";
+}
+
+interface SortMenuProps {
+  anchorEl: HTMLElement | null;
+  open: boolean;
+  onClose: () => void;
+  onApply: (sorts: SortCondition[]) => void;
+  columns: ColumnDef<any, any>[];
+  table: Table<any>;
+}
+
+function SortMenu({ anchorEl, open, onClose, onApply, columns, table }: SortMenuProps) {
+  const [tempConditions, setTempConditions] = useState<SortCondition[]>([]);
+
+  // Initialize temp conditions when menu opens
+  useEffect(() => {
+    if (open) {
+      const activeSorts = table.getState().sorting.map(
+        (sort) =>
+          ({
+            column: sort.id,
+            direction: sort.desc ? "desc" : "asc",
+          } as SortCondition),
+      );
+      setTempConditions(activeSorts.length > 0 ? activeSorts : [{ column: "", direction: "asc" }]);
+    }
+  }, [open, table]);
+
+  const handleAddSort = () => {
+    const availableColumns = filteredColumns.filter((column) => !tempConditions.some((c) => c.column === column.id));
+
+    if (availableColumns.length > 0) {
+      setTempConditions([...tempConditions, { column: "", direction: "asc" }]);
+    }
+  };
+
+  const handleRemoveSort = (index: number) => {
+    setTempConditions(tempConditions.filter((_, i) => i !== index));
+  };
+
+  const handleChange = (index: number, field: keyof SortCondition, value: string) => {
+    const newConditions = [...tempConditions];
+    newConditions[index] = { ...newConditions[index], [field]: value };
+    setTempConditions(newConditions);
+  };
+
+  const handleClearAll = () => {
+    setTempConditions([{ column: "", direction: "asc" }]);
+  };
+
+  const handleApply = () => {
+    const validSorts = tempConditions.filter((c) => c.column);
+    onApply(validSorts);
+    onClose();
+  };
+
+  // Filter out the 'select' column
+  const filteredColumns = useMemo(
+    () =>
+      columns
+        .filter((column) => column.id !== "select")
+        .map((column) => ({
+          id: column.id as string,
+          header:
+            column.header && typeof column.header === "string"
+              ? column.header
+              : typeof column.header === "function"
+              ? (column.header as any)()?.props?.children || column.id
+              : column.id,
+        })),
+    [columns],
+  );
+
+  return (
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "left",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "left",
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            bgcolor: "background.paper",
+            boxShadow: 1,
+            borderRadius: 1,
+            p: 2,
+            minWidth: 600,
+          },
+        },
+      }}
+    >
+      <Typography variant="subtitle2" sx={{ mb: 2 }}>
+        Sort records by
+      </Typography>
+      <Stack spacing={2}>
+        {tempConditions.map((condition, index) => (
+          <Box key={index}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Box sx={{ minWidth: 120 }}>
+                {index === 0 ? <Typography>Sort by</Typography> : <Typography>then by</Typography>}
+              </Box>
+              <TextField
+                select
+                size="small"
+                value={condition.column}
+                onChange={(e) => handleChange(index, "column", e.target.value)}
+                sx={{ minWidth: 150 }}
+              >
+                {filteredColumns
+                  .filter((column) => !tempConditions.some((c, i) => i !== index && c.column === column.id))
+                  .map((column) => (
+                    <MenuItem key={column.id} value={column.id}>
+                      {column.header}
+                    </MenuItem>
+                  ))}
+              </TextField>
+              <TextField
+                select
+                size="small"
+                value={condition.direction}
+                onChange={(e) => handleChange(index, "direction", e.target.value)}
+                sx={{ minWidth: 150 }}
+              >
+                <MenuItem value="asc">ascending</MenuItem>
+                <MenuItem value="desc">descending</MenuItem>
+              </TextField>
+              {tempConditions.length > 1 && (
+                <IconButton size="small" onClick={() => handleRemoveSort(index)}>
+                  <CloseIcon />
+                </IconButton>
+              )}
+            </Stack>
+          </Box>
+        ))}
+
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+          <Button
+            size="small"
+            onClick={handleAddSort}
+            startIcon={<AddIcon />}
+            disabled={filteredColumns.length <= tempConditions.length}
+          >
+            Add a sort
+          </Button>
+          <Button size="small" onClick={handleClearAll}>
+            Clear all sorts
+          </Button>
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleApply} variant="contained">
+            Apply
+          </Button>
+        </Box>
+      </Stack>
+    </Popover>
+  );
+}
+
+function Sort({ column }: { column: Column<any, any> }) {
+  const sortDirection = column.getIsSorted();
+
+  return (
+    <IconButton
+      size="small"
+      onClick={(e) => {
+        e.stopPropagation();
+        column.toggleSorting(undefined, true); // Always use multi-sort
+      }}
+      sx={{
+        opacity: sortDirection ? 1 : 0.5,
+        "&:hover": { opacity: 1 },
+      }}
+    >
+      {sortDirection === "asc" ? (
+        <ArrowUpwardIcon fontSize="small" />
+      ) : sortDirection === "desc" ? (
+        <ArrowDownwardIcon fontSize="small" />
+      ) : (
+        <SortIcon fontSize="small" />
+      )}
+    </IconButton>
+  );
+}
+
 export function DataTable<TData>({
   data,
   columns: originalColumns,
@@ -345,8 +544,10 @@ export function DataTable<TData>({
   totalCount = 0,
 }: DataTableProps<TData>) {
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
+  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
   const filterButtonRef = useRef<HTMLButtonElement>(null);
+  const sortButtonRef = useRef<HTMLButtonElement>(null);
 
   // Add meta property to columns to handle filter menu opening
   const columns = useMemo(
@@ -395,6 +596,23 @@ export function DataTable<TData>({
     handleFilterClose();
   };
 
+  const handleSortClick = () => {
+    setSortAnchorEl(sortButtonRef.current);
+  };
+
+  const handleSortClose = () => {
+    setSortAnchorEl(null);
+  };
+
+  const handleSortApply = (sorts: SortCondition[]) => {
+    table.setSorting(
+      sorts.map((sort) => ({
+        id: sort.column,
+        desc: sort.direction === "desc",
+      })),
+    );
+  };
+
   const table = useReactTable({
     data,
     columns,
@@ -422,6 +640,8 @@ export function DataTable<TData>({
       const value = row.getValue(columnId);
       return filterByOperator(value, filterValue, "contains");
     },
+    enableSorting: true,
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
@@ -436,7 +656,7 @@ export function DataTable<TData>({
         >
           Filter
         </Button>
-        <Button variant="outlined" startIcon={<SortIcon />} size="small">
+        <Button ref={sortButtonRef} variant="outlined" startIcon={<SortIcon />} size="small" onClick={handleSortClick}>
           Sort
         </Button>
         {enableGlobalFilter && (
@@ -461,6 +681,15 @@ export function DataTable<TData>({
         initialColumn={selectedColumn}
       />
 
+      <SortMenu
+        anchorEl={sortAnchorEl}
+        open={Boolean(sortAnchorEl)}
+        onClose={handleSortClose}
+        onApply={handleSortApply}
+        columns={columns}
+        table={table}
+      />
+
       <TableContainer component={Paper}>
         <MUITable>
           <TableHead>
@@ -479,7 +708,8 @@ export function DataTable<TData>({
                     {header.isPlaceholder ? null : (
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.getCanFilter() ? <Filter column={header.column} /> : null}
+                        {header.column.getCanFilter() && <Filter column={header.column} />}
+                        {header.column.getCanSort() && <Sort column={header.column} />}
                       </Box>
                     )}
                   </TableCell>
