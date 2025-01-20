@@ -29,11 +29,16 @@ import {
   IconButton,
   Box,
   Typography,
+  MenuItem,
+  Select,
+  FormControl,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SortIcon from "@mui/icons-material/Sort";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import { FilterMenu, SortMenu } from "./components";
 import { filterByOperator } from "./filterUtils";
@@ -277,23 +282,34 @@ export function DataTable<TData>({
 
         <Box sx={{ display: "flex", gap: 2, ml: "auto" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <select
-              value={pageData.perPage}
-              onChange={(e) => {
-                onPageDataChange({
-                  page: 1,
-                  perPage: Number(e.target.value),
-                });
-              }}
-            >
-              {[25, 50, 100].map((pageSize) => (
-                <option key={pageSize} value={pageSize}>
-                  Show {pageSize}
-                </option>
-              ))}
-            </select>
+            <FormControl size="small">
+              <Select
+                value={pageData.perPage}
+                onChange={(e) => {
+                  onPageDataChange({
+                    page: 1,
+                    perPage: Number(e.target.value),
+                  });
+                }}
+                variant="outlined"
+                sx={{
+                  minWidth: 80,
+                  height: 32,
+                  "& .MuiSelect-select": {
+                    py: 0.5,
+                    px: 1,
+                  },
+                }}
+              >
+                {[10, 25, 50, 100].map((pageSize) => (
+                  <MenuItem key={pageSize} value={pageSize}>
+                    {pageSize}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Typography variant="body2">
-              {`${(pageData.page - 1) * pageData.perPage + 1}-${Math.min(
+              {`${(pageData.page - 1) * pageData.perPage + 1} - ${Math.min(
                 pageData.page * pageData.perPage,
                 totalCount,
               )} of ${totalCount}`}
@@ -302,19 +318,21 @@ export function DataTable<TData>({
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Button
                 size="small"
-                variant="outlined"
+                variant="contained"
                 onClick={() => onPageDataChange({ ...pageData, page: pageData.page - 1 })}
                 disabled={pageData.page === 1}
+                sx={{ minWidth: 32, p: 0.5 }}
               >
-                {"<"}
+                <NavigateBeforeIcon fontSize="small" />
               </Button>
               <Button
                 size="small"
-                variant="outlined"
+                variant="contained"
                 onClick={() => onPageDataChange({ ...pageData, page: pageData.page + 1 })}
                 disabled={pageData.page >= Math.ceil(totalCount / pageData.perPage)}
+                sx={{ minWidth: 32, p: 0.5 }}
               >
-                {">"}
+                <NavigateNextIcon fontSize="small" />
               </Button>
             </Box>
           </Box>
