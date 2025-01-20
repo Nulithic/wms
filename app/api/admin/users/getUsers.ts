@@ -5,20 +5,16 @@ const handleGetUsers = async (supabase: SupabaseClient, body: any) => {
   try {
     const { page, perPage } = body;
 
-    console.log(page, perPage);
-
     const { data, error } = await supabase.auth.admin.listUsers({
       page,
       perPage,
     });
 
-    const { users } = data;
-
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json(users);
+    return NextResponse.json({ users: data.users, total: data.total });
   } catch (err) {
     console.error("Error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

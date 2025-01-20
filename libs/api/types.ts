@@ -8,6 +8,11 @@ export interface UserData {
   email: string;
 }
 
+export interface UserListRepsonse {
+  users: UserData[];
+  total: number;
+}
+
 export interface GroupData {
   id: string;
   name: string;

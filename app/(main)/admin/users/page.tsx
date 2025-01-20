@@ -19,11 +19,15 @@ export default function Users() {
   const pathname = usePathname();
   const [pageData, setPageData] = useState({
     page: 1,
-    perPage: 10,
+    perPage: 1,
   });
 
   const { getUsers, addUser, deleteUser } = useUsers();
-  const { data: users, isLoading, isError } = getUsers(pageData);
+
+  const { data, isLoading, isError } = getUsers(pageData);
+
+  console.log(data?.users);
+
   const addUserMutation = addUser();
   const deleteUserMutation = deleteUser();
 
@@ -83,11 +87,11 @@ export default function Users() {
     setOpenAddDialog(false);
   };
 
-  const handleDeleteUser = async () => {
-    const selectedIds = Object.keys(rowSelection);
-    for (const id of selectedIds) {
-      await deleteUserMutation.mutateAsync(id);
+  const handleDeleteUser = async (selectedRows: User[]) => {
+    for (const user of selectedRows) {
+      await deleteUserMutation.mutateAsync(user.id);
     }
+
     setRowSelection({});
   };
 
@@ -100,27 +104,19 @@ export default function Users() {
         <Button variant="outlined" onClick={() => setOpenAddDialog(true)}>
           Add User
         </Button>
-
-        <Button
-          variant="outlined"
-          color="error"
-          onClick={handleDeleteUser}
-          disabled={Object.keys(rowSelection).length === 0}
-        >
-          Delete Selected
-        </Button>
       </div>
 
       <DataTable
-        data={users || []}
+        data={data?.users || []}
         columns={columns}
         enableRowSelection
-        enableGlobalFilter
+        // enableGlobalFilter
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         pageData={pageData}
         onPageDataChange={setPageData}
-        totalCount={users?.length || 0}
+        totalCount={data?.total || 0}
+        onDeleteSelected={handleDeleteUser}
       />
 
       <AddUserDialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} onAddUser={handleAddUser} />

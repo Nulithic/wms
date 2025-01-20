@@ -28,6 +28,7 @@ import {
   Chip,
   IconButton,
   Box,
+  Typography,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SortIcon from "@mui/icons-material/Sort";
@@ -54,20 +55,7 @@ interface DataTableProps<TData> {
   };
   onPageDataChange: (newPageData: { page: number; perPage: number }) => void;
   totalCount?: number;
-}
-
-function Filter({ column }: { column: Column<any, any> & { columnDef: { meta?: ColumnMeta } } }) {
-  return (
-    <IconButton
-      size="small"
-      onClick={(e) => {
-        e.stopPropagation(); // Prevent header click event
-        column.columnDef.meta?.openFilterMenu?.(column.id);
-      }}
-    >
-      <FilterListIcon fontSize="small" />
-    </IconButton>
-  );
+  onDeleteSelected?: (selectedRows: TData[]) => void;
 }
 
 interface FilterCondition {
@@ -79,6 +67,20 @@ interface FilterCondition {
 interface SortCondition {
   column: string;
   direction: "asc" | "desc";
+}
+
+function Filter({ column }: { column: Column<any, any> & { columnDef: { meta?: ColumnMeta } } }): JSX.Element {
+  return (
+    <IconButton
+      size="small"
+      onClick={(e) => {
+        e.stopPropagation(); // Prevent header click event
+        column.columnDef.meta?.openFilterMenu?.(column.id);
+      }}
+    >
+      <FilterListIcon fontSize="small" />
+    </IconButton>
+  );
 }
 
 function Sort({ column }: { column: Column<any, any> }) {
@@ -117,6 +119,7 @@ export function DataTable<TData>({
   pageData,
   onPageDataChange,
   totalCount = 0,
+  onDeleteSelected,
 }: DataTableProps<TData>) {
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
@@ -221,29 +224,101 @@ export function DataTable<TData>({
 
   return (
     <Fragment>
-      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-        <Button
-          ref={filterButtonRef}
-          variant="outlined"
-          startIcon={<FilterListIcon />}
-          size="small"
-          onClick={handleFilterClick}
-        >
-          Filter
-        </Button>
-        <Button ref={sortButtonRef} variant="outlined" startIcon={<SortIcon />} size="small" onClick={handleSortClick}>
-          Sort
-        </Button>
-        {enableGlobalFilter && (
-          <TextField
-            value={table.getState().globalFilter ?? ""}
-            onChange={(e) => table.setGlobalFilter(e.target.value)}
-            placeholder="Search all columns..."
-            variant="outlined"
-            size="small"
-            sx={{ ml: "auto", width: 300 }}
-          />
-        )}
+      <Stack direction="row" spacing={2} sx={{ mb: 2, justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          {Object.keys(rowSelection).length > 0 ? (
+            <Fragment>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Typography variant="body2">{Object.keys(rowSelection).length} row(s) selected</Typography>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => onDeleteSelected?.(table.getSelectedRowModel().rows.map((row) => row.original))}
+                >
+                  Delete Selected
+                </Button>
+              </Box>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <Button
+                ref={filterButtonRef}
+                variant="outlined"
+                startIcon={<FilterListIcon />}
+                size="small"
+                onClick={handleFilterClick}
+              >
+                Filter
+              </Button>
+              <Button
+                ref={sortButtonRef}
+                variant="outlined"
+                startIcon={<SortIcon />}
+                size="small"
+                onClick={handleSortClick}
+              >
+                Sort
+              </Button>
+            </Fragment>
+          )}
+
+          {enableGlobalFilter && (
+            <TextField
+              value={table.getState().globalFilter ?? ""}
+              onChange={(e) => table.setGlobalFilter(e.target.value)}
+              placeholder="Search all columns..."
+              variant="outlined"
+              size="small"
+              sx={{ width: 300 }}
+            />
+          )}
+        </Box>
+
+        <Box sx={{ display: "flex", gap: 2, ml: "auto" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <select
+              value={pageData.perPage}
+              onChange={(e) => {
+                onPageDataChange({
+                  page: 1,
+                  perPage: Number(e.target.value),
+                });
+              }}
+            >
+              {[25, 50, 100].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  Show {pageSize}
+                </option>
+              ))}
+            </select>
+            <Typography variant="body2">
+              {`${(pageData.page - 1) * pageData.perPage + 1}-${Math.min(
+                pageData.page * pageData.perPage,
+                totalCount,
+              )} of ${totalCount}`}
+            </Typography>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => onPageDataChange({ ...pageData, page: pageData.page - 1 })}
+                disabled={pageData.page === 1}
+              >
+                {"<"}
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => onPageDataChange({ ...pageData, page: pageData.page + 1 })}
+                disabled={pageData.page >= Math.ceil(totalCount / pageData.perPage)}
+              >
+                {">"}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
       </Stack>
 
       <FilterMenu
@@ -266,7 +341,7 @@ export function DataTable<TData>({
       />
 
       <TableContainer component={Paper}>
-        <MUITable>
+        <MUITable size="small">
           <TableHead>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -325,27 +400,7 @@ export function DataTable<TData>({
             ))}
           </TableBody>
           <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[10, 25, 50, 100]}
-                count={totalCount}
-                rowsPerPage={pageData.perPage}
-                page={pageData.page - 1} // Convert to 0-based index
-                onPageChange={(_, newPage) => {
-                  onPageDataChange({
-                    ...pageData,
-                    page: newPage + 1, // Convert back to 1-based index
-                  });
-                }}
-                onRowsPerPageChange={(e) => {
-                  onPageDataChange({
-                    page: 1, // Reset to first page when changing page size
-                    perPage: Number(e.target.value),
-                  });
-                }}
-                labelDisplayedRows={({ from, to, count }) => `${from}-${to} of ${count > 0 ? count : "Over " + to}`}
-              />
-            </TableRow>
+            <TableRow></TableRow>
           </TableFooter>
         </MUITable>
       </TableContainer>
