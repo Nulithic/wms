@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Button } from "@mui/material";
 import { type ColumnDef, type RowSelectionState } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable/DataTable";
@@ -9,6 +9,7 @@ import AddUserDialog from "./AddUserDialog";
 import { useUsers } from "@/libs/api/queries/admin/usersQueries";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useTitle } from "@/components/NavBar/TitleContext";
 
 interface User {
   id: string;
@@ -16,18 +17,16 @@ interface User {
 }
 
 export default function Users() {
+  const { setShowNavBar, setActions } = useTitle();
+
   const pathname = usePathname();
   const [pageData, setPageData] = useState({
     page: 1,
-    perPage: 1,
+    perPage: 10,
   });
 
   const { getUsers, addUser, deleteUser } = useUsers();
-
   const { data, isLoading, isError } = getUsers(pageData);
-
-  console.log(data?.users);
-
   const addUserMutation = addUser();
   const deleteUserMutation = deleteUser();
 
@@ -95,22 +94,35 @@ export default function Users() {
     setRowSelection({});
   };
 
+  const navBarActions = useMemo(
+    () => (
+      <>
+        <Button variant="outlined" onClick={() => setOpenAddDialog(true)}>
+          Add User
+        </Button>
+      </>
+    ),
+    [],
+  );
+
+  useEffect(() => {
+    setShowNavBar(true);
+    setActions(navBarActions);
+    return () => {
+      setShowNavBar(false);
+      setActions(null);
+    };
+  }, [setShowNavBar, setActions, navBarActions]);
+
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading users</div>;
 
   return (
     <Fragment>
-      <div className="space-x-2 mb-4">
-        <Button variant="outlined" onClick={() => setOpenAddDialog(true)}>
-          Add User
-        </Button>
-      </div>
-
       <DataTable
         data={data?.users || []}
         columns={columns}
         enableRowSelection
-        // enableGlobalFilter
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         pageData={pageData}

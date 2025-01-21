@@ -6,7 +6,7 @@ import { StyledAppBar } from "@/styles/layoutStyles";
 interface AppHeaderProps {
   open: boolean;
   handleDrawerToggle: () => void;
-  title: string;
+  title?: string;
 }
 
 function AppHeader({ open, handleDrawerToggle, title }: AppHeaderProps) {

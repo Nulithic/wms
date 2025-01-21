@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useTitle } from "@/components/RootLayout/TitleContext";
+import { useTitle } from "@/components/NavBar/TitleContext";
 
 export const useStaticTitle = (title: string) => {
   const { setTitle } = useTitle();
