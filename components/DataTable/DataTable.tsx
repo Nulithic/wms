@@ -74,7 +74,7 @@ interface SortCondition {
   direction: "asc" | "desc";
 }
 
-function Filter({ column }: { column: Column<any, any> & { columnDef: { meta?: ColumnMeta } } }): JSX.Element {
+function Filter({ column }: { column: Column<any, any> & { columnDef: { meta?: ColumnMeta } } }) {
   return (
     <IconButton
       size="small"
