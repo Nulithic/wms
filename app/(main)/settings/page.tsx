@@ -10,8 +10,7 @@ import {
   Palette as ThemeIcon,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
-import { useIsAdmin } from "@/libs/hooks/useIsAdmin";
-import { useStaticTitle } from "@/libs/hooks/useStaticTitle";
+import { useAuthorization } from "@/libs/hooks/useAuthorization";
 
 interface SettingCard {
   title: string;
@@ -58,10 +57,7 @@ const SettingCard = ({ title, icon, path }: SettingCard) => {
 };
 
 export default function SettingsPage() {
-  console.count("SettingsPage");
-  useStaticTitle("Settings");
-
-  const { isAdmin, isLoading } = useIsAdmin();
+  const { isAdmin, isLoading } = useAuthorization();
 
   if (isLoading) {
     return <Box sx={{ p: 3 }}>Loading...</Box>;
