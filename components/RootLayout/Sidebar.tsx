@@ -186,7 +186,6 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
   return (
     <StyledDrawer variant="permanent" open={open}>
       <DrawerHeader />
-      <Divider />
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <List disablePadding>
           <ListItem disablePadding sx={listItemStyles.root(pathname === "/")}>
@@ -198,7 +197,7 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
             </ListItemButton>
           </ListItem>
         </List>
-        <Divider />
+        {/* <Divider /> */}
 
         {menuTree.map((item) => (
           <Fragment key={item.id}>
@@ -206,7 +205,7 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
               {renderMenuItem(item)}
               {item.children.length > 0 && renderChildItems(item)}
             </List>
-            <Divider />
+            {/* <Divider /> */}
           </Fragment>
         ))}
         <ListItem disablePadding sx={listItemStyles.settingsButton}>

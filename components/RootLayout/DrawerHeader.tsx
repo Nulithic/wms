@@ -9,7 +9,23 @@ const StyledDrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "space-between",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  height: 64,
+  height: 56,
+  minHeight: "56px",
+  "@media (min-width: 600px)": {
+    minHeight: "56px",
+  },
+  boxShadow: "3px 0px 6px rgba(0, 0, 0, .3)",
+}));
+
+const StyledImage = styled("img")(({ theme }) => ({
+  height: "70%",
+  width: "auto",
+  objectFit: "contain",
+  margin: "0 auto",
+  display: "block",
+  "@media (min-width: 600px)": {
+    height: "70%",
+  },
 }));
 
 const DrawerHeader = () => {
@@ -21,16 +37,9 @@ const DrawerHeader = () => {
 
   return (
     <StyledDrawerHeader>
-      <img
+      <StyledImage
         src="/splgroup_logo.png"
         alt="SPL Group"
-        style={{
-          height: "80%", // Set to a percentage of the DrawerHeader height
-          width: "auto", // Maintain aspect ratio
-          objectFit: "contain", // Ensure the entire logo is visible
-          marginRight: "auto",
-          // cursor: "pointer",
-        }}
         // onClick={handleNav()}
       />
     </StyledDrawerHeader>

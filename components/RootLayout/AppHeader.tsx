@@ -22,15 +22,41 @@ function AppHeader({ open, handleDrawerToggle, title }: AppHeaderProps) {
 
   return (
     <StyledAppBar position="fixed" open={open}>
-      <Toolbar>
-        <IconButton color="inherit" onClick={handleDrawerToggle} edge="start" sx={{ marginRight: 5 }}>
-          <MenuIcon />
+      <Toolbar sx={{ minHeight: 56, height: 56 }}>
+        <IconButton
+          color="inherit"
+          onClick={handleDrawerToggle}
+          edge="start"
+          sx={{
+            marginRight: 5,
+            padding: "12px",
+          }}
+        >
+          <MenuIcon sx={{ fontSize: "1.25rem" }} />
         </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          sx={{
+            flexGrow: 1,
+            fontSize: "1rem",
+            lineHeight: "56px",
+          }}
+        >
           {title}
         </Typography>
         <div>
-          <IconButton size="large" onClick={handleMenu} color="inherit">
+          <IconButton
+            onClick={handleMenu}
+            color="inherit"
+            sx={{
+              padding: "12px",
+              "& .MuiSvgIcon-root": {
+                fontSize: "1.25rem",
+              },
+            }}
+          >
             <Logout />
           </IconButton>
           <Menu
@@ -47,12 +73,18 @@ function AppHeader({ open, handleDrawerToggle, title }: AppHeaderProps) {
             open={Boolean(menuAnchor)}
             onClose={handleMenuClose}
           >
-            {/* <MenuItem onClick={handleMenuClose}>My Account</MenuItem> */}
             <MenuItem>
               <form action="/signout" method="post">
                 <button
                   type="submit"
-                  style={{ background: "none", border: "none", padding: 0, font: "inherit", cursor: "pointer" }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    font: "inherit",
+                    cursor: "pointer",
+                    fontSize: "0.875rem",
+                  }}
                 >
                   Sign Out
                 </button>

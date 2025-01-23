@@ -62,7 +62,30 @@ const theme = createTheme({
         root: {
           color: "#000",
           background: "#fff",
-          // boxShadow: "none", // Remove default shadow
+          boxShadow: "3px 0px 6px rgba(0, 0, 0, .3)",
+          "@media (min-width: 600px)": {
+            minHeight: "56px ",
+          },
+        },
+      },
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        root: {
+          minHeight: "56px",
+          "@media (min-width: 600px)": {
+            minHeight: "56px",
+          },
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        root: {
+          minHeight: "56px",
+          "@media (min-width: 600px)": {
+            minHeight: "56px",
+          },
         },
       },
     },
