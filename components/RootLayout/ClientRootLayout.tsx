@@ -18,12 +18,13 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
   const { data: userMenuItems, isLoading } = useUserMenuItems();
 
   const handleDrawerToggle = () => setOpen(!open);
+  const handleDrawerOpenChange = (newOpen: boolean) => setOpen(newOpen);
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <CssBaseline />
       <AppHeader open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Sidebar open={open} menuItems={userMenuItems} isLoading={isLoading} />
+      <Sidebar open={open} menuItems={userMenuItems} isLoading={isLoading} onOpenChange={handleDrawerOpenChange} />
       <Box component="main" sx={{ flexGrow: 1, marginTop: "56px", display: "flex", flexDirection: "column" }}>
         {showNavBar && <NavBar actions={actions} />}
         <Box sx={{ p: 2, bgcolor: "#eee", flex: 1 }}>

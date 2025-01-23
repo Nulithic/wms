@@ -17,6 +17,7 @@ import { StyledDrawer } from "@/styles/layoutStyles";
 import DrawerHeader from "./DrawerHeader";
 import { MenuItemData } from "@/libs/api/types";
 import { pathUtils } from "@/utils/pathUtils";
+
 interface MenuItem extends MenuItemData {
   children: MenuItem[];
 }
@@ -25,14 +26,17 @@ interface SidebarProps {
   open: boolean;
   menuItems: MenuItemData[] | undefined;
   isLoading: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
+function Sidebar({ open, menuItems, isLoading, onOpenChange }: SidebarProps) {
   const theme = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<string | false>(false);
   const [menuTree, setMenuTree] = useState<MenuItem[]>([]);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isHoverOpen, setIsHoverOpen] = useState(false);
 
   useEffect(() => {
     if (menuItems) {
@@ -90,6 +94,40 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
       setExpanded(false);
     }
   };
+
+  const handleMouseEnter = () => {
+    if (!open) {
+      if (hoverTimeout) clearTimeout(hoverTimeout);
+      setIsHoverOpen(true);
+      onOpenChange(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
+
+    if (isHoverOpen) {
+      const timeout = setTimeout(() => {
+        onOpenChange(false);
+        setIsHoverOpen(false);
+      }, 300);
+      setHoverTimeout(timeout);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) clearTimeout(hoverTimeout);
+    };
+  }, [hoverTimeout]);
+
+  useEffect(() => {
+    if (!open) {
+      setIsHoverOpen(false);
+    }
+  }, [open]);
 
   const listStyles = {
     mainList: (isExpanded: boolean) => ({
@@ -184,7 +222,7 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
   );
 
   return (
-    <StyledDrawer variant="permanent" open={open}>
+    <StyledDrawer variant="permanent" open={open} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <DrawerHeader open={open} />
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <List disablePadding>
