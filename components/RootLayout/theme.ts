@@ -58,11 +58,13 @@ const theme = createTheme({
       },
     },
     MuiAppBar: {
-      // styleOverrides: {
-      //   root: {
-      //     boxShadow: "none", // Remove default shadow
-      //   },
-      // },
+      styleOverrides: {
+        root: {
+          color: "#000",
+          background: "#fff",
+          // boxShadow: "none", // Remove default shadow
+        },
+      },
     },
   },
 });

@@ -20,13 +20,15 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
   const handleDrawerToggle = () => setOpen(!open);
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <CssBaseline />
       <AppHeader open={open} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar open={open} menuItems={userMenuItems} isLoading={isLoading} />
-      <Box component="main" sx={{ flexGrow: 1, marginTop: "64px" }}>
+      <Box component="main" sx={{ flexGrow: 1, marginTop: "64px", display: "flex", flexDirection: "column" }}>
         {showNavBar && <NavBar actions={actions} />}
-        <Box sx={{ p: 3 }}>{children}</Box>
+        <Box sx={{ p: 2, bgcolor: "#eee", flex: 1 }}>
+          <Box sx={{ p: 2, bgcolor: "#fff", height: "100%", borderRadius: 2 }}>{children}</Box>
+        </Box>
       </Box>
     </Box>
   );

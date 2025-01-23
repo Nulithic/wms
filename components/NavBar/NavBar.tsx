@@ -62,6 +62,9 @@ export function NavBar({ title, actions, className }: NavBarProps) {
     return matchedTitle;
   }, [userMenuItems, pathname, isLoading, manualTitle]);
 
+  console.log(currentTitle);
+  console.log(title);
+
   return (
     <Box
       className={className}
@@ -69,11 +72,9 @@ export function NavBar({ title, actions, className }: NavBarProps) {
         borderColor: "divider",
         px: 3,
         py: 2,
-        mb: 3,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        bgcolor: "background.paper",
       }}
     >
       <Box>
