@@ -62,7 +62,7 @@ const theme = createTheme({
         root: {
           color: "#000",
           background: "#fff",
-          boxShadow: "3px 0px 6px rgba(0, 0, 0, .3)",
+          boxShadow: "0px 0px 6px rgba(0, 0, 0, .3)",
           "@media (min-width: 600px)": {
             minHeight: "56px ",
           },

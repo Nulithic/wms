@@ -185,7 +185,7 @@ function Sidebar({ open, menuItems, isLoading }: SidebarProps) {
 
   return (
     <StyledDrawer variant="permanent" open={open}>
-      <DrawerHeader />
+      <DrawerHeader open={open} />
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <List disablePadding>
           <ListItem disablePadding sx={listItemStyles.root(pathname === "/")}>

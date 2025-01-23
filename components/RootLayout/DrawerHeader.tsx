@@ -1,9 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/navigation";
-
 import { styled } from "@mui/material/styles";
 
-const StyledDrawerHeader = styled("div")(({ theme }) => ({
+interface StyledDrawerHeaderProps {
+  open?: boolean;
+}
+
+const StyledDrawerHeader = styled("div")<StyledDrawerHeaderProps>(({ theme, open }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
@@ -14,7 +17,7 @@ const StyledDrawerHeader = styled("div")(({ theme }) => ({
   "@media (min-width: 600px)": {
     minHeight: "56px",
   },
-  boxShadow: "3px 0px 6px rgba(0, 0, 0, .3)",
+  boxShadow: open ? "3px 0px 6px rgba(0, 0, 0, .3)" : "none",
 }));
 
 const StyledImage = styled("img")(({ theme }) => ({
@@ -28,7 +31,11 @@ const StyledImage = styled("img")(({ theme }) => ({
   },
 }));
 
-const DrawerHeader = () => {
+interface DrawerHeaderProps {
+  open?: boolean;
+}
+
+const DrawerHeader = ({ open }: DrawerHeaderProps) => {
   const router = useRouter();
 
   const handleNav = () => () => {
@@ -36,7 +43,7 @@ const DrawerHeader = () => {
   };
 
   return (
-    <StyledDrawerHeader>
+    <StyledDrawerHeader open={open}>
       <StyledImage
         src="/splgroup_logo.png"
         alt="SPL Group"
