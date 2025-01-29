@@ -70,8 +70,9 @@ export function NavBar({ title, actions, className }: NavBarProps) {
       className={className}
       sx={{
         borderColor: "divider",
-        px: 3,
-        py: 2,
+        px: "16px",
+        py: "9px",
+        height: "56px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",

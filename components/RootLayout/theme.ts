@@ -4,7 +4,7 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#1976d2", // Modern blue
+      main: "#f48020",
     },
   },
   typography: {
@@ -47,14 +47,13 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 4, // Rounded corners for buttons
-          // textTransform: "none", // Disable uppercase transformation
+          fontWeight: 700,
+          fontSize: "15px",
+          textTransform: "capitalize",
         },
-        // contained: {
-        //   boxShadow: "none", // Remove default shadow
-        //   "&:hover": {
-        //     boxShadow: "none", // Remove shadow on hover
-        //   },
-        // },
+        contained: {
+          color: "#fff",
+        },
       },
     },
     MuiAppBar: {

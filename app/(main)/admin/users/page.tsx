@@ -97,8 +97,8 @@ export default function Users() {
   const navBarActions = useMemo(
     () => (
       <>
-        <Button variant="outlined" onClick={() => setOpenAddDialog(true)}>
-          Add User
+        <Button variant="contained" onClick={() => setOpenAddDialog(true)}>
+          New User
         </Button>
       </>
     ),

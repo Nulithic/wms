@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { Box, Button, IconButton, MenuItem, Popover, Stack, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import type { FilterMenuProps, FilterCondition } from "../types";
+import type { FilterMenuProps, FilterCondition } from "../../types";
+import { TableMenuButton } from "./TableMenuButton";
 
 export function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialColumn }: FilterMenuProps) {
   // Temporary state for filter menu
@@ -112,16 +113,14 @@ export function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, i
         paper: {
           sx: {
             bgcolor: "background.paper",
-            boxShadow: 1,
             borderRadius: 1,
             p: 2,
-            minWidth: 600,
           },
         },
       }}
     >
-      <Typography variant="subtitle2" sx={{ mb: 2 }}>
-        In this view, show records
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Filters
       </Typography>
       <Stack spacing={2}>
         {tempConditions.map((condition, index) => (
@@ -178,17 +177,14 @@ export function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, i
         ))}
 
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-          <Button
-            size="small"
+          <TableMenuButton
             onClick={handleAddFilter}
             startIcon={<AddIcon />}
             disabled={filteredColumns.length <= tempConditions.length}
           >
             Add a filter
-          </Button>
-          <Button size="small" onClick={handleClearAll}>
-            Clear all filters
-          </Button>
+          </TableMenuButton>
+          <TableMenuButton onClick={handleClearAll}>Clear all filters</TableMenuButton>
         </Box>
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>

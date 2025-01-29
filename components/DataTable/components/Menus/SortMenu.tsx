@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { Box, Button, IconButton, MenuItem, Popover, Stack, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import type { SortMenuProps, SortCondition } from "../types";
+import type { SortMenuProps, SortCondition } from "../../types";
+import { TableMenuButton } from "./TableMenuButton";
 
 export function SortMenu({ anchorEl, open, onClose, onApply, columns, table }: SortMenuProps) {
   const [tempConditions, setTempConditions] = useState<SortCondition[]>([]);
@@ -83,16 +84,14 @@ export function SortMenu({ anchorEl, open, onClose, onApply, columns, table }: S
         paper: {
           sx: {
             bgcolor: "background.paper",
-            boxShadow: 1,
             borderRadius: 1,
             p: 2,
-            minWidth: 600,
           },
         },
       }}
     >
-      <Typography variant="subtitle2" sx={{ mb: 2 }}>
-        Sort records by
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Sorting
       </Typography>
       <Stack spacing={2}>
         {tempConditions.map((condition, index) => (
@@ -136,17 +135,14 @@ export function SortMenu({ anchorEl, open, onClose, onApply, columns, table }: S
         ))}
 
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-          <Button
-            size="small"
+          <TableMenuButton
             onClick={handleAddSort}
             startIcon={<AddIcon />}
             disabled={filteredColumns.length <= tempConditions.length}
           >
             Add a sort
-          </Button>
-          <Button size="small" onClick={handleClearAll}>
-            Clear all sorts
-          </Button>
+          </TableMenuButton>
+          <TableMenuButton onClick={handleClearAll}>Clear all sorts</TableMenuButton>
         </Box>
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>

@@ -40,7 +40,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
-import { FilterMenu, SortMenu } from "./components";
+import { FilterMenu, SortMenu } from "./components/Menus";
+import { DataTableButton } from "./components";
 import { filterByOperator } from "./filterUtils";
 
 interface ColumnMeta {
@@ -229,42 +230,28 @@ export function DataTable<TData>({
 
   return (
     <Fragment>
-      <Stack direction="row" spacing={2} sx={{ mb: 2, justifyContent: "space-between" }}>
+      <Stack direction="row" spacing={2} sx={{ mb: 2, justifyContent: "space-between", alignItems: "center" }}>
         <Box sx={{ display: "flex", gap: 2 }}>
           {Object.keys(rowSelection).length > 0 ? (
             <Fragment>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <Typography variant="body2">{Object.keys(rowSelection).length} row(s) selected</Typography>
-                <Button
-                  variant="outlined"
+                <DataTableButton
                   color="error"
-                  size="small"
                   onClick={() => onDeleteSelected?.(table.getSelectedRowModel().rows.map((row) => row.original))}
                 >
                   Delete Selected
-                </Button>
+                </DataTableButton>
               </Box>
             </Fragment>
           ) : (
             <Fragment>
-              <Button
-                ref={filterButtonRef}
-                variant="outlined"
-                startIcon={<FilterListIcon />}
-                size="small"
-                onClick={handleFilterClick}
-              >
+              <DataTableButton ref={filterButtonRef} startIcon={<FilterListIcon />} onClick={handleFilterClick}>
                 Filter
-              </Button>
-              <Button
-                ref={sortButtonRef}
-                variant="outlined"
-                startIcon={<SortIcon />}
-                size="small"
-                onClick={handleSortClick}
-              >
+              </DataTableButton>
+              <DataTableButton ref={sortButtonRef} startIcon={<SortIcon />} size="small" onClick={handleSortClick}>
                 Sort
-              </Button>
+              </DataTableButton>
             </Fragment>
           )}
 

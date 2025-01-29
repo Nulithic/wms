@@ -1,2 +1,1 @@
-export { FilterMenu } from "./FilterMenu";
-export { SortMenu } from "./SortMenu";
+export { DataTableButton } from "./DataTableButton";
