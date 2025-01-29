@@ -17,7 +17,7 @@ interface User {
 }
 
 export default function Users() {
-  const { setShowNavBar, setActions } = useTitle();
+  const { setShowNavBar, setTitle, setActions } = useTitle();
 
   const pathname = usePathname();
   const [pageData, setPageData] = useState({
@@ -107,9 +107,11 @@ export default function Users() {
 
   useEffect(() => {
     setShowNavBar(true);
+    setTitle("Users");
     setActions(navBarActions);
     return () => {
       setShowNavBar(false);
+      setTitle("");
       setActions(null);
     };
   }, [setShowNavBar, setActions, navBarActions]);
