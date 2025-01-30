@@ -122,8 +122,12 @@ export function SortMenu({ anchorEl, open, onClose, onApply, columns, table }: S
                 onChange={(e) => handleChange(index, "direction", e.target.value)}
                 sx={{ minWidth: 150 }}
               >
-                <MenuItem value="asc">ascending</MenuItem>
-                <MenuItem value="desc">descending</MenuItem>
+                <MenuItem key="asc" value="asc">
+                  ascending
+                </MenuItem>
+                <MenuItem key="desc" value="desc">
+                  descending
+                </MenuItem>
               </TextField>
               {tempConditions.length > 1 && (
                 <IconButton size="small" onClick={() => handleRemoveSort(index)}>

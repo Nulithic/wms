@@ -14,7 +14,7 @@ const handleGetGroups = async (supabase: SupabaseClient, body: any) => {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ groups: data, totalCount: count });
+    return NextResponse.json({ groups: data, total: count });
   } catch (err) {
     console.error("Error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

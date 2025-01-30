@@ -5,6 +5,16 @@ import CloseIcon from "@mui/icons-material/Close";
 import type { FilterMenuProps, FilterCondition } from "../../types";
 import { TableMenuButton } from "./TableMenuButton";
 
+const FILTER_OPERATORS = [
+  "starts with",
+  "contains",
+  "does not contain",
+  "is",
+  "is not",
+  "is blank",
+  "is not blank",
+] as const;
+
 export function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, initialColumn }: FilterMenuProps) {
   // Temporary state for filter menu
   const [tempConditions, setTempConditions] = useState<FilterCondition[]>([]);
@@ -151,13 +161,11 @@ export function FilterMenu({ anchorEl, open, onClose, onApply, columns, table, i
                 onChange={(e) => handleChange(index, "operator", e.target.value)}
                 sx={{ minWidth: 150 }}
               >
-                <MenuItem value="starts with">starts with</MenuItem>
-                <MenuItem value="contains">contains</MenuItem>
-                <MenuItem value="does not contain">does not contain</MenuItem>
-                <MenuItem value="is">is</MenuItem>
-                <MenuItem value="is not">is not</MenuItem>
-                <MenuItem value="is blank">is blank</MenuItem>
-                <MenuItem value="is not blank">is not blank</MenuItem>
+                {FILTER_OPERATORS.map((operator) => (
+                  <MenuItem key={operator} value={operator}>
+                    {operator}
+                  </MenuItem>
+                ))}
               </TextField>
               {!["is blank", "is not blank"].includes(condition.operator) && (
                 <TextField

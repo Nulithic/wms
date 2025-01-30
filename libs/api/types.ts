@@ -19,7 +19,7 @@ export interface GroupData {
 }
 export interface GroupDataResponse {
   groups: GroupData[];
-  totalCount: number;
+  total: number;
 }
 
 export interface MenuItemData {
